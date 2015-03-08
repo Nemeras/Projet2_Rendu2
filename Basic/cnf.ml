@@ -50,6 +50,33 @@ let trivial c =
 	aux c 0
 
 
+let rec resolution c1 c2 lit =
+	match c1,c2 with
+	| [],_ -> c2
+	| _,[] -> c1
+	| x::c3,_ when abs x = lit -> resolution c3 c2 lit
+	| _,y::c4 when abs y = lit -> resolution c1 c4 lit
+	| x::c3,y::c4 when x = -y -> [0]
+	| x::c3,y::c4 when x = y ->
+		let l = (resolution c3 c4 lit) in
+		if l = [0] then
+			[0]
+		else
+			(* On supprime le doublon y *)
+			x::l
+	| x::c3,y::_ when abs x < abs y ->
+		let l = (resolution c3 c2 lit) in
+		if l = [0] then
+			[0]
+		else
+			x::l
+	| x::_,y::c4 ->
+		let l = (resolution c1 c4 lit) in
+		if l = [0] then
+			[0]
+		else
+			y::l
+
 
 		(* CNF *)
 

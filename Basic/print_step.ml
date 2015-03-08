@@ -27,9 +27,11 @@ let print_clauses current solution back =
 	;
 	for i = 0 to length current - 1 do
 		printf "Clause %d : " i ;
-		if fst current.(i) then
+		let b, _, _ = current.(i) in
+		if b then
 			print_string "[INACTIVE]\t" ;
-		print_string (string_of_clause (snd current.(i)))
+		let _, c, _ = current.(i) in
+		print_string (string_of_clause c)
 	done
 
 

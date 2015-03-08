@@ -7,6 +7,7 @@ open Array
 
 open Stack
 open Print_step
+open Learning
 
 
 
@@ -19,27 +20,29 @@ open Print_step
 let find_unit current solution =
 	if solution.(0) = 0 then
 		let i = ref 0 in
+		let lit = ref 0 in
 		let found = ref false in
 		while not !found && !i < length current do
-			if not (fst current.(!i)) && List.tl (snd current.(!i)) = [] then
+			let b, c, _ = current.(!i) in
+			if not b && List.tl c = [] then
 				begin
 				found := true ;
-				i := List.hd (snd current.(!i))
+				lit := List.hd c
 				end
 			else
 				incr i
 		done ;
 		if !found then 
-			!i
+			!lit, !i
 		else
-			0
+			0,0
 	else
-		0
+		0,0
 
 
 (* Cherche un littéral dont la valeur est inconnue mais dont la négation n'apparaît pas dans current.
    Renvoie 0 si un tel littéral n'existe pas.                                                         *)
-let find_single pos solution =
+(*let find_single pos solution =
 	let found = ref false in
 	let i = ref 1 in
 	while not !found && !i < length pos do
@@ -59,43 +62,48 @@ let find_single pos solution =
 		!i
 	else
 		0
-
+*)
 
 (* Cherche un littéral conséquence de current, i.e. présent dans une clause unitaire ou dont l'opposé
    n'apparait pas dans current.
    Renvoie 0 si un tel littéral n'existe pas.                                                         *)
 let find_consequences current pos solution =
-	let tmp = find_single pos solution in
+	(*let tmp = find_single pos solution in
 	if tmp <> 0 then
 		tmp
-	else
+	else*)
 		find_unit current solution
 
 
 (* Effectue la boolean constraint propagation sur toutes les variables présentes sous une seule polarité
    ou présentes dans une clause unitaire.                                                                *)
-let rec propa stack current pos solution print =
-	let x = ref (find_consequences current pos solution) in
+let rec propa stack current pos solution levels level print =
+	let a, b = find_consequences current pos solution in
+	let x = ref a in
+	let y = ref b in
 	while !x <> 0 do
 		if solution.(0) < 0 then
 			x := 0
 		else
 			begin
 			print_conseq !x print ;
+			levels.(abs !x) <- level ;
 			if !x > 0 then
 				(* x est nécessairement à vrai *)
 				begin
-				solution.(!x) <- 2 ;
-				update !x stack current pos solution (snd pos.(!x)) (fst pos.(!x))
+				solution.(!x) <- !y + 2 ;
+				update !x stack current pos solution (snd pos.(!x)) (fst pos.(!x)) level
 				end
 			else
 				(* x est nécessairement à faux *)
 				begin
-				solution.(- !x) <- -2 ;
-				update !x stack current pos solution (fst pos.(- !x)) (snd pos.(- !x))
+				solution.(- !x) <- - !y - 2 ;
+				update !x stack current pos solution (fst pos.(- !x)) (snd pos.(- !x)) level
 				end
 			;
-			x := find_consequences current pos solution ;
+			let a, b = find_consequences current pos solution in
+			x := a ;
+			y := b ;
 			end
 	done
 
@@ -106,18 +114,18 @@ let rec propa stack current pos solution print =
 
 
 (* Effectue une étape de backtrack *)
-let backtrack_step stack current pos solution k back print =
+let backtrack_step stack current pos solution levels k back level print =
 	
 	(* Si la valeur de début de pile est positive et n'est pas issue d'une boolean constraint propagation,
 	   donc pas nécessaire, on peut supposer l'opposé. On arrête alors le backtrack.                       *)
-	if !k > 0 && solution.(!k) = 1 then
+	if hlevel stack = !level && !k > 0 && solution.(!k) = 1 then
 		begin
 		solution.(0) <- 0 ;
 		back := false ;
-		k := backtrack stack current pos (snd pos.(!k)) ;	(* On retire !k *)
+		k := backtrack stack current pos (snd pos.(!k)) !level ;	(* On retire !k *)
 		print_backtrack !k solution.(abs !k) print ;
 		k := - !k ;
-		update !k stack current pos solution (fst pos.(- !k)) (snd pos.(- !k)) ;	(* On suppose l'opposé *)
+		update !k stack current pos solution (fst pos.(- !k)) (snd pos.(- !k)) !level ;	(* On suppose l'opposé *)
 		print_hyp !k print ;
 		solution.(- !k) <- -1 ;
 		end
@@ -126,9 +134,15 @@ let backtrack_step stack current pos solution k back print =
 	else
 		begin
 		if !k > 0 then
-			k := backtrack stack current pos (snd pos.(!k))
+			k := backtrack stack current pos (snd pos.(!k)) !level
 		else
-			k := backtrack stack current pos (fst pos.(- !k))
+			if solution.(- !k) < -1 then
+				k := backtrack stack current pos (fst pos.(- !k)) !level
+			else
+				begin
+				decr level ;
+				k := backtrack stack current pos (fst pos.(- !k)) !level
+				end
 		;
 		print_backtrack !k solution.(abs !k) print ;
 		solution.(abs !k) <- 0 ;
@@ -138,11 +152,13 @@ let backtrack_step stack current pos solution k back print =
 
 
 (* Implémente une itération de la boucle *)
-let continue stack current pos solution k back print =
+let continue stack clauses current pos solution levels k back level print =
 	
 	(* On vient de découvrir la clause vide : on commence le backtrack *)
 	if solution.(0) < 0 && not !back then
 		begin
+		iter clauses current solution levels (- solution.(0)-1) !level ;
+		graph current solution !level ;
 		k := pick stack ;		(* On a besoin de connaître la valeur à dépiler *)
 		print_new_backtrack print ;
 		back := true
@@ -150,7 +166,7 @@ let continue stack current pos solution k back print =
 	
 	(* Backtracking : on n'a pas encore pu faire de nouvelle hypothèse pour enlever la contradiction *)
 	else if !back then
-		backtrack_step stack current pos solution k back print	
+		backtrack_step stack current pos solution levels k back level print	
 	
 	(* S'il n'y a pas de contradiction : on suppose par défaut la première variable libre comme vraie *)
 	else
@@ -158,8 +174,10 @@ let continue stack current pos solution k back print =
 		k := abs !k + 1 ;
 		if solution.(!k) = 0 then
 			begin
+			incr level ;
+			levels.(!k) <- !level ;
 			print_hyp !k print ;
-			update !k stack current pos solution (snd pos.(!k)) (fst pos.(!k)) ;
+			update !k stack current pos solution (snd pos.(!k)) (fst pos.(!k)) !level ;
 			solution.(!k) <- 1 ;
 			end
 		end

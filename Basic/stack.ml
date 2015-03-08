@@ -12,10 +12,10 @@ open List
 	* Une liste d'entiers indiquant quelles clauses sont mises à vrai lorsque ce littéral l'est.
    La fin de la pile est toujours 0,[].                                                              *)
 
-type stack = (int*(int list)) list ref
+type stack = (int*int*(int*int list)) list ref
 
 let create_stack () =
-	ref [(0,[])]
+	ref [(0,0,[])]
 
 let is_empty stack =
 	match !stack with
@@ -24,8 +24,12 @@ let is_empty stack =
 
 (* Renvoie l'élément de tête de la liste. *)
 let pick stack =
-	fst (hd !stack)
+	let k, _, _ = hd !stack in
+	k
 
+let hlevel stack =
+	let _, l, _ = hd !stack in
+	l
 
 
 
@@ -68,15 +72,16 @@ let inactivate_clause c pos i =
 
 
 (* Supprime les littéraux mis à faux par l'affectation encours dans les clauses correspondantes. *)
-let rec update_remove n stack current solution list_pos =
+let rec update_remove n stack current solution list_pos level =
 	match list_pos with
 	| [] -> ()
 	| h::t ->
-		let boole, c = current.(h) in
-		current.(h) <- boole, List.filter (fun i -> i <> n) c ;
-		if current.(h) = (boole,[]) then
-			solution.(0) <- -2 ;
-		update_remove n stack current solution t
+		let boole, c, c2 = current.(h) in
+		let new_c = List.filter (fun i -> i <> n) c in
+		current.(h) <- boole, new_c, (n,level)::c2 ;
+		if new_c = [] then
+			solution.(0) <- -h-1 ;
+		update_remove n stack current solution t level
 
 
 (* Désactive les clauses mises à vrai par l'affectation en cours. *)
@@ -84,10 +89,10 @@ let rec update_inactivate n stack current pos list_pos =
 	match list_pos with
 	| [] -> [] ;
 	| h::t ->
-		let boole, c = current.(h) in
+		let boole, c, c2 = current.(h) in
 		if not boole then
 			begin
-			current.(h) <- true, c ;
+			current.(h) <- true, c, c2 ;
 			inactivate_clause c pos h
 			end
 		;
@@ -97,10 +102,10 @@ let rec update_inactivate n stack current pos list_pos =
 (* Place l'affectation n = vrai au début de la pile, et met à jour current et pos.
 	list_pos_negative : liste des positions dans current des clauses contenant le littéral -n.
 	list_pos : liste des positions dans current des clauses contenant le littéral n.           *)
-let update n stack current pos solution list_pos_negative list_pos =
+let update n stack current pos solution list_pos_negative list_pos level =
 	let changes = update_inactivate n stack current pos list_pos in
-	update_remove (-n) stack current solution list_pos_negative ;
-	stack := (n,changes)::!stack
+	update_remove (-n) stack current solution list_pos_negative level ;
+	stack := (n,level,changes)::!stack
 
 
 
@@ -113,29 +118,37 @@ let rec backtrack_activate n changes current pos =
 	match changes with
 	| [] -> ()
 	| h::t ->
-		let _, c = current.(h) in
-		current.(h) <- false, c ;
+		let _, c, c2 = current.(h) in
+		current.(h) <- false, c, c2 ;
 		activate_clause c pos h ;
 		backtrack_activate n t current pos
 
 
+let rec aux_restore c2 level =
+	match c2 with
+	| [] -> []
+	| (_,l)::_ when l < level -> c2
+	| (n,l)::q ->
+		aux_restore q level
+
 (* Restaure les littéraux qui avaient été supprimés par l'affectation annulée. *)
-let rec backtrack_restore n to_restore current =
+let rec backtrack_restore n to_restore current level =
 	match to_restore with
 	| [] -> ()
 	| h::tail ->
-		let boole, c = current.(h) in
-		current.(h) <- boole, n::c ;
-		backtrack_restore n tail current
+		let boole, c, c2 = current.(h) in
+		let new_c2 = aux_restore c2 level in
+		current.(h) <- boole, n::c, new_c2 ;
+		backtrack_restore n tail current level
 
 
 (* Annule l'affectation en tête de liste, la renvoie, et met à jour current et pos. *)
-let backtrack stack current pos to_restore =
+let backtrack stack current pos to_restore level =
 	let content = !stack in
 	match content with
 	| [] -> failwith "Pile vide"
-	| (n, changes)::tail ->
+	| (n, _, changes)::tail ->
 		backtrack_activate n changes current pos ;
 		stack := tail ;
-		backtrack_restore (-n) to_restore current ;
+		backtrack_restore (-n) to_restore current level ;
 		n
