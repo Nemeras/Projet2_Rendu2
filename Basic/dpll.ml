@@ -17,7 +17,7 @@ open Print_step
 		(** STRUCTURE DE DONNEE - VARIABLES **)
 
 
-type changing_clauses = (bool*clause*((int*int) list))) array
+(*type changing_clauses = (bool*clause*(int*int list)) array*)
 
 
 (* On manipule les clauses dans le tableau current.

@@ -5,7 +5,7 @@ open Dot
 let nbr_blue c level current solution levels =
 	let rec aux c lit =
 		match c with
-		| [] -> true, 0
+		| [] -> true, lit
 		| x::q when x*solution.(abs x) < 0 && levels.(abs x) = level ->
 			(*Printf.printf "%d\n" x ;*)
 			if lit = 0 then
@@ -20,28 +20,31 @@ let nbr_blue c level current solution levels =
 	in
 	aux c 0
 
-let iter_learning clauses current solution levels start level =
+let iter_learning graph clauses current solution levels start level =
 	let pos_c = ref start in
 	let c = ref clauses.(!pos_c) in
 	let a, b = nbr_blue clauses.(!pos_c) level current solution levels in
 	let fini = ref a in
 	let lit = ref b in
 	while (not !fini) do
+		set_color (- !lit) Purple (Array.length solution) graph ;
 		pos_c := (abs solution.(abs !lit)) - 2 ;
 		c := fusion (List.filter (fun i -> i <> !lit) !c) (List.filter (fun i -> i <> - !lit) clauses.(!pos_c)) ;
 		let a, b = nbr_blue !c level current solution levels in
 		fini := a ; lit := b
 	done ;
-	print_string (string_of_clause !c)
-
-
-let convert n v =
-	if n >= 0 then
-		n
-	else
-		v+1+abs n
+	set_color (- !lit) Yellow (Array.length solution) graph ;
+	!c
 
 let rec add pos_c graph current solution start level v =
+	let rec aux l start =
+		match l with
+		| [] -> ()
+		| (n,_)::q ->
+			add_arete graph (-n, start) ;
+			set_color (-n) White v graph ;
+			aux q start
+	in
 	match current.(pos_c) with
 	| _,_,[] -> ()
 	| a,b,(n,l)::q when l = level ->
@@ -52,14 +55,8 @@ let rec add pos_c graph current solution start level v =
 		if abs solution.(abs n) > 1 then
 			add ((abs solution.(abs n)) - 2) graph current solution (-n) level v ;
 		add pos_c graph current solution start level v
-	| a,b,(n,l)::q ->
-		add_arete graph (-n, start) ;
-		set_color (-n) White v graph ;
-		current.(pos_c) <- a,b,q ;		
-		if abs solution.(abs n) > 1 then
-			add ((abs solution.(abs n)) - 2) graph current solution (-n) level v ;
-		add pos_c graph current solution start level v
-	| _ -> ()
+	| a,b,q ->
+		aux q start
 
 
 let graph current solution level =
@@ -67,8 +64,8 @@ let graph current solution level =
 	let g = creer_graph v in
 	add (-solution.(0)-1) g current solution 0 level v ;
 	set_color 0 Red v g ;
-	compile g v
-
+	g
+	
 
 
 

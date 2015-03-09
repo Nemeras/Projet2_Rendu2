@@ -157,8 +157,9 @@ let continue stack clauses current pos solution levels k back level print =
 	(* On vient de découvrir la clause vide : on commence le backtrack *)
 	if solution.(0) < 0 && not !back then
 		begin
-		iter_learning clauses current solution levels (-solution.(0)-1) !level ;
-		graph current solution !level ;
+		let g = graph current solution !level in
+		let c = iter_learning g clauses current solution levels (-solution.(0)-1) !level in
+		Dot.compile g (Array.length solution) ;
 		failwith("coucou") ;
 		k := pick stack ;		(* On a besoin de connaître la valeur à dépiler *)
 		print_new_backtrack print ;
