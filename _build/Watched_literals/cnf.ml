@@ -11,7 +11,7 @@ type literal = int				(* Si x_k est une variable, k est son littéral positif et
 type clause = literal list
 
 type cnf = {
-	mutable clauses : clause list ;		(* La liste des clauses formant la conjonction *)
+	mutable clauses : clause list ;	(* La liste des clauses formant la conjonction *)
 	v : int ;				(* Indice théorique (indiqué dans le fichier) maximal des variables *)
 	mutable v_real : int ;			(* Indice maximal réel des variables *)
 	c : int ;				(* Nombre théorique de clauses *)
@@ -49,31 +49,6 @@ let trivial c =
 	in
 	aux c 0
 
-
-let rec fusion c1 c2 =
-	match c1, c2 with
-	| [],_ -> c2
-	| _,[] -> c1
-	| x::c3,y::c4 when x = -y -> (*Printf.printf "%d %d\n" x y;*)[0]
-	| x::c3,y::c4 when x = y ->
-		let l = fusion c3 c4 in
-		if l = [0] then
-			[0]
-		else
-			(* On supprime le doublon y *)
-			x::l
-	| x::c3,y::_ when abs x < abs y ->
-		let l = fusion c3 c2 in
-		if l = [0] then
-			[0]
-		else
-			x::l
-	| x::_,y::c4 ->
-		let l = fusion c1 c4 in
-		if l = [0] then
-			[0]
-		else
-			y::l
 
 
 		(* CNF *)

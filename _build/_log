@@ -1,0 +1,76 @@
+### Starting build.
+# Target: Watched_literals/main-wl.ml.depends, tags: { extension:ml, file:Watched_literals/main-wl.ml, ocaml, ocamldep, quiet }
+/usr/local/bin/ocamldep.opt -modules Watched_literals/main-wl.ml > Watched_literals/main-wl.ml.depends
+# Target: Watched_literals/cnf.ml.depends, tags: { extension:ml, file:Watched_literals/cnf.ml, ocaml, ocamldep, quiet }
+/usr/local/bin/ocamldep.opt -modules Watched_literals/cnf.ml > Watched_literals/cnf.ml.depends
+# Target: Watched_literals/sort.ml.depends, tags: { extension:ml, file:Watched_literals/sort.ml, ocaml, ocamldep, quiet }
+/usr/local/bin/ocamldep.opt -modules Watched_literals/sort.ml > Watched_literals/sort.ml.depends
+# Target: Watched_literals/sort.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:Watched_literals/sort.cmo, file:Watched_literals/sort.ml, implem, ocaml, quiet }
+/usr/local/bin/ocamlc.opt -c -I Watched_literals -o Watched_literals/sort.cmo Watched_literals/sort.ml
+# Target: Watched_literals/dpll.ml.depends, tags: { extension:ml, file:Watched_literals/dpll.ml, ocaml, ocamldep, quiet }
+/usr/local/bin/ocamldep.opt -modules Watched_literals/dpll.ml > Watched_literals/dpll.ml.depends
+# Target: Watched_literals/cnf.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:Watched_literals/cnf.cmo, file:Watched_literals/cnf.ml, implem, ocaml, quiet }
+/usr/local/bin/ocamlc.opt -c -I Watched_literals -o Watched_literals/cnf.cmo Watched_literals/cnf.ml
+# Target: Watched_literals/print_step.ml.depends, tags: { extension:ml, file:Watched_literals/print_step.ml, ocaml, ocamldep, quiet }
+/usr/local/bin/ocamldep.opt -modules Watched_literals/print_step.ml > Watched_literals/print_step.ml.depends
+# Target: Watched_literals/watched.ml.depends, tags: { extension:ml, file:Watched_literals/watched.ml, ocaml, ocamldep, quiet }
+/usr/local/bin/ocamldep.opt -modules Watched_literals/watched.ml > Watched_literals/watched.ml.depends
+# Target: Watched_literals/watched.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:Watched_literals/watched.cmo, file:Watched_literals/watched.ml, implem, ocaml, quiet }
+/usr/local/bin/ocamlc.opt -c -I Watched_literals -o Watched_literals/watched.cmo Watched_literals/watched.ml
+# Target: Watched_literals/stack.ml.depends, tags: { extension:ml, file:Watched_literals/stack.ml, ocaml, ocamldep, quiet }
+/usr/local/bin/ocamldep.opt -modules Watched_literals/stack.ml > Watched_literals/stack.ml.depends
+# Target: Watched_literals/step.ml.depends, tags: { extension:ml, file:Watched_literals/step.ml, ocaml, ocamldep, quiet }
+/usr/local/bin/ocamldep.opt -modules Watched_literals/step.ml > Watched_literals/step.ml.depends
+# Target: Watched_literals/print_step.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:Watched_literals/print_step.cmo, file:Watched_literals/print_step.ml, implem, ocaml, quiet }
+/usr/local/bin/ocamlc.opt -c -I Watched_literals -o Watched_literals/print_step.cmo Watched_literals/print_step.ml
+# Target: Watched_literals/stack.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:Watched_literals/stack.cmo, file:Watched_literals/stack.ml, implem, ocaml, quiet }
+/usr/local/bin/ocamlc.opt -c -I Watched_literals -o Watched_literals/stack.cmo Watched_literals/stack.ml
+# Target: Watched_literals/step.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:Watched_literals/step.cmo, file:Watched_literals/step.ml, implem, ocaml, quiet }
+/usr/local/bin/ocamlc.opt -c -I Watched_literals -o Watched_literals/step.cmo Watched_literals/step.ml
+# Target: Watched_literals/lexer.mll, tags: { extension:mll, file:Watched_literals/lexer.mll, lexer, ocaml, ocamllex, quiet }
+/usr/local/bin/ocamllex.opt -q Watched_literals/lexer.mll
+# Target: Watched_literals/lexer.ml.depends, tags: { extension:ml, file:Watched_literals/lexer.ml, ocaml, ocamldep, quiet }
+/usr/local/bin/ocamldep.opt -modules Watched_literals/lexer.ml > Watched_literals/lexer.ml.depends
+# Target: Watched_literals/parser.mly, tags: { extension:mly, file:Watched_literals/parser.mly, ocaml, ocamlyacc, parser, quiet }
+/usr/local/bin/ocamlyacc -v Watched_literals/parser.mly
+# Target: Watched_literals/parser.mli.depends, tags: { extension:mli, file:Watched_literals/parser.mli, ocaml, ocamldep, quiet }
+/usr/local/bin/ocamldep.opt -modules Watched_literals/parser.mli > Watched_literals/parser.mli.depends
+# Target: Watched_literals/parser.cmi, tags: { byte, compile, extension:mli, file:Watched_literals/parser.mli, interf, ocaml, quiet }
+/usr/local/bin/ocamlc.opt -c -I Watched_literals -o Watched_literals/parser.cmi Watched_literals/parser.mli
+# Target: Watched_literals/dpll.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:Watched_literals/dpll.cmo, file:Watched_literals/dpll.ml, implem, ocaml, quiet }
+/usr/local/bin/ocamlc.opt -c -I Watched_literals -o Watched_literals/dpll.cmo Watched_literals/dpll.ml
+# Target: Watched_literals/lexer.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:Watched_literals/lexer.cmo, file:Watched_literals/lexer.ml, implem, ocaml, quiet }
+/usr/local/bin/ocamlc.opt -c -I Watched_literals -o Watched_literals/lexer.cmo Watched_literals/lexer.ml
+# Target: Watched_literals/main-wl.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:Watched_literals/main-wl.cmo, file:Watched_literals/main-wl.ml, implem, ocaml, quiet }
+/usr/local/bin/ocamlc.opt -c -I Watched_literals -o Watched_literals/main-wl.cmo Watched_literals/main-wl.ml
++ /usr/local/bin/ocamlc.opt -c -I Watched_literals -o Watched_literals/main-wl.cmo Watched_literals/main-wl.ml
+File "Watched_literals/main-wl.ml", line 1:
+Warning 24: bad source file name: "Main-wl" is not a valid module name.
+# Target: Watched_literals/sort.cmx, tags: { compile, extension:cmx, extension:ml, file:Watched_literals/sort.cmx, file:Watched_literals/sort.ml, implem, native, ocaml, quiet }
+/usr/local/bin/ocamlopt.opt -c -I Watched_literals -o Watched_literals/sort.cmx Watched_literals/sort.ml
+# Target: Watched_literals/cnf.cmx, tags: { compile, extension:cmx, extension:ml, file:Watched_literals/cnf.cmx, file:Watched_literals/cnf.ml, implem, native, ocaml, quiet }
+/usr/local/bin/ocamlopt.opt -c -I Watched_literals -o Watched_literals/cnf.cmx Watched_literals/cnf.ml
+# Target: Watched_literals/watched.cmx, tags: { compile, extension:cmx, extension:ml, file:Watched_literals/watched.cmx, file:Watched_literals/watched.ml, implem, native, ocaml, quiet }
+/usr/local/bin/ocamlopt.opt -c -I Watched_literals -o Watched_literals/watched.cmx Watched_literals/watched.ml
+# Target: Watched_literals/print_step.cmx, tags: { compile, extension:cmx, extension:ml, file:Watched_literals/print_step.cmx, file:Watched_literals/print_step.ml, implem, native, ocaml, quiet }
+/usr/local/bin/ocamlopt.opt -c -I Watched_literals -o Watched_literals/print_step.cmx Watched_literals/print_step.ml
+# Target: Watched_literals/stack.cmx, tags: { compile, extension:cmx, extension:ml, file:Watched_literals/stack.cmx, file:Watched_literals/stack.ml, implem, native, ocaml, quiet }
+/usr/local/bin/ocamlopt.opt -c -I Watched_literals -o Watched_literals/stack.cmx Watched_literals/stack.ml
+# Target: Watched_literals/step.cmx, tags: { compile, extension:cmx, extension:ml, file:Watched_literals/step.cmx, file:Watched_literals/step.ml, implem, native, ocaml, quiet }
+/usr/local/bin/ocamlopt.opt -c -I Watched_literals -o Watched_literals/step.cmx Watched_literals/step.ml
+# Target: Watched_literals/parser.ml.depends, tags: { extension:ml, file:Watched_literals/parser.ml, ocaml, ocamldep, quiet }
+/usr/local/bin/ocamldep.opt -modules Watched_literals/parser.ml > Watched_literals/parser.ml.depends
+# Target: Watched_literals/parser.cmx, tags: { compile, extension:cmx, extension:ml, file:Watched_literals/parser.cmx, file:Watched_literals/parser.ml, implem, native, ocaml, quiet }
+/usr/local/bin/ocamlopt.opt -c -I Watched_literals -o Watched_literals/parser.cmx Watched_literals/parser.ml
+# Target: Watched_literals/dpll.cmx, tags: { compile, extension:cmx, extension:ml, file:Watched_literals/dpll.cmx, file:Watched_literals/dpll.ml, implem, native, ocaml, quiet }
+/usr/local/bin/ocamlopt.opt -c -I Watched_literals -o Watched_literals/dpll.cmx Watched_literals/dpll.ml
+# Target: Watched_literals/lexer.cmx, tags: { compile, extension:cmx, extension:ml, file:Watched_literals/lexer.cmx, file:Watched_literals/lexer.ml, implem, native, ocaml, quiet }
+/usr/local/bin/ocamlopt.opt -c -I Watched_literals -o Watched_literals/lexer.cmx Watched_literals/lexer.ml
+# Target: Watched_literals/main-wl.cmx, tags: { compile, extension:cmx, extension:ml, file:Watched_literals/main-wl.cmx, file:Watched_literals/main-wl.ml, implem, native, ocaml, quiet }
+/usr/local/bin/ocamlopt.opt -c -I Watched_literals -o Watched_literals/main-wl.cmx Watched_literals/main-wl.ml
++ /usr/local/bin/ocamlopt.opt -c -I Watched_literals -o Watched_literals/main-wl.cmx Watched_literals/main-wl.ml
+File "Watched_literals/main-wl.ml", line 1:
+Warning 24: bad source file name: "Main-wl" is not a valid module name.
+# Target: Watched_literals/main-wl.native, tags: { dont_link_with, extension:native, file:Watched_literals/main-wl.native, link, native, ocaml, program, quiet }
+/usr/local/bin/ocamlopt.opt unix.cmxa Watched_literals/sort.cmx Watched_literals/cnf.cmx Watched_literals/watched.cmx Watched_literals/print_step.cmx Watched_literals/stack.cmx Watched_literals/step.cmx Watched_literals/dpll.cmx Watched_literals/parser.cmx Watched_literals/lexer.cmx Watched_literals/main-wl.cmx -o Watched_literals/main-wl.native
+# Compilation successful.

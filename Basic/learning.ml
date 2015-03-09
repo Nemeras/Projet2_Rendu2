@@ -7,6 +7,7 @@ let nbr_blue c level current solution levels =
 		match c with
 		| [] -> true, 0
 		| x::q when x*solution.(abs x) < 0 && levels.(abs x) = level ->
+			(*Printf.printf "%d\n" x ;*)
 			if lit = 0 then
 				aux q x
 			(* A optimiser : il faudrait prendre celui qui a été mis à faux le plus récemment *)
@@ -19,7 +20,7 @@ let nbr_blue c level current solution levels =
 	in
 	aux c 0
 
-let iter clauses current solution levels start level =
+let iter_learning clauses current solution levels start level =
 	let pos_c = ref start in
 	let c = ref clauses.(!pos_c) in
 	let a, b = nbr_blue clauses.(!pos_c) level current solution levels in
@@ -27,8 +28,8 @@ let iter clauses current solution levels start level =
 	let lit = ref b in
 	while (not !fini) do
 		pos_c := (abs solution.(abs !lit)) - 2 ;
-		c := resolution !c clauses.(!pos_c) (abs !lit) ;
-		let a, b = nbr_blue clauses.(!pos_c) level current solution levels in
+		c := fusion (List.filter (fun i -> i <> !lit) !c) (List.filter (fun i -> i <> - !lit) clauses.(!pos_c)) ;
+		let a, b = nbr_blue !c level current solution levels in
 		fini := a ; lit := b
 	done ;
 	print_string (string_of_clause !c)
