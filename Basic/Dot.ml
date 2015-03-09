@@ -18,7 +18,6 @@ let creer_graph nb_variables = {a=[];c=Array.make (1+2*nb_variables) None};;
 let add_arete graph arete = graph.a<-arete::(graph.a);;
 
 let changer_var variable nb_variables = 
-Printf.printf "Var : %d -> %d (%d)\n" variable (if variable >= 0 then variable else (nb_variables+(abs variable))) nb_variables;
 if variable >= 0 then variable else (nb_variables+(abs variable));;
 
 let var_changer variable nb_variables = if variable <= nb_variables then variable else -(variable-nb_variables);;
