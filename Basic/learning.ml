@@ -44,12 +44,19 @@ let rec add pos_c graph current solution start level v =
 	match current.(pos_c) with
 	| _,_,[] -> ()
 	| a,b,(n,l)::q when l = level ->
-		add_arete graph (n, start) ;
-		set_color n Blue v graph ;
+		add_arete graph (-n, start) ;
+		set_color (-n) Blue v graph ;
 		set_color start Blue v graph ;
 		current.(pos_c) <- a,b,q ;		
 		if abs solution.(abs n) > 1 then
-			add ((abs solution.(abs n)) - 2) graph current solution n level v ;
+			add ((abs solution.(abs n)) - 2) graph current solution (-n) level v ;
+		add pos_c graph current solution start level v
+	| a,b,(n,l)::q ->
+		add_arete graph (-n, start) ;
+		set_color (-n) White v graph ;
+		current.(pos_c) <- a,b,q ;		
+		if abs solution.(abs n) > 1 then
+			add ((abs solution.(abs n)) - 2) graph current solution (-n) level v ;
 		add pos_c graph current solution start level v
 	| _ -> ()
 
@@ -57,8 +64,8 @@ let rec add pos_c graph current solution start level v =
 let graph current solution level =
 	let v = length solution - 1 in
 	let g = creer_graph v in
-	set_color 0 Red v g ;
 	add (-solution.(0)-1) g current solution 0 level v ;
+	set_color 0 Red v g ;
 	compile g v
 
 
