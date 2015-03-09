@@ -50,7 +50,6 @@ let rec add pos_c graph current solution start level v =
 	| a,b,(n,l)::q when l = level ->
 		add_arete graph (-n, start) ;
 		set_color (-n) Blue v graph ;
-		set_color start Blue v graph ;
 		current.(pos_c) <- a,b,q ;		
 		if abs solution.(abs n) > 1 then
 			add ((abs solution.(abs n)) - 2) graph current solution (-n) level v ;
@@ -60,10 +59,9 @@ let rec add pos_c graph current solution start level v =
 
 
 let graph current solution level =
-	let v = length solution - 1 in
+	let v = Array.length solution in
 	let g = creer_graph v in
 	add (-solution.(0)-1) g current solution 0 level v ;
-	set_color 0 Red v g ;
 	g
 	
 
