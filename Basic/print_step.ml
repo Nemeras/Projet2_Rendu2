@@ -7,8 +7,7 @@ open Array
 open Printf
 
 open Cnf
-
-
+open DynArray
 
 		(** RECAPITULATIF A CHAQUE ITERATION DE LA BOUCLE **)
 
@@ -25,12 +24,12 @@ let print_clauses current solution back =
 	else
 		print_string "Oui.\n\n"
 	;
-	for i = 0 to length current - 1 do
+	for i = 0 to current.length - 1 do
 		printf "Clause %d : " i ;
-		let b, _, _ = current.(i) in
+		let b, _, _ = current.a.(i) in
 		if b then
 			print_string "[INACTIVE]\t" ;
-		let _, c, _ = current.(i) in
+		let _, c, _ = current.a.(i) in
 		print_string (string_of_clause c)
 	done
 

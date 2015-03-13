@@ -12,16 +12,14 @@ open Stack
 open Print_step
 
 
-
-
 		(** STRUCTURE DE DONNEE - VARIABLES **)
 
 
-(*type changing_clauses = (bool*clause*(int*int list)) array*)
+type changing_clauses = (bool*clause*((int*int) list)) array
 
 
 (* On manipule les clauses dans le tableau current.
-   fst current.(i) indique si la clause est actuellement satisfaite, et snd current.(i)
+   fst current.a.(i) indique si la clause est actuellement satisfaite, et snd current.a.(i)
    est la clause d'indice i courante, qui peut être modifiée pendant l'exécution de l'algorithme. *)
 
 (* Variables utilisées dans la suite, et dans step.ml :
@@ -50,9 +48,9 @@ open Print_step
    Renvoie également un tableau pos : pos.(i) = l1, l2, où l1 est la liste des indices
    des clauses contenant le littéral i, et l2 la liste de celles contenant le littéral -i *)
 let cnf_to_vect cnf solution =
-	let clauses = make (List.length cnf.clauses) [] in
-	let current = make (List.length cnf.clauses) (false,[],[]) in
-	let pos = make (cnf.v_real+1) ([],[]) in
+	let clauses = DynArray.make(List.length cnf.clauses) [] in
+	let current = DynArray.make (List.length cnf.clauses) (false,[],[]) in
+	let pos = Array.make (cnf.v_real+1) ([],[]) in
 	
 	(* Enumère chaque clause et met à jour current et pos *)
 	let rec aux clauses_list i =
@@ -62,8 +60,8 @@ let cnf_to_vect cnf solution =
 			solution.(0) <- -2		(* Clause vide rencontrée : cnf n'est pas satisfiable *)
 		| c::tail ->
 			activate_clause c pos i ;	(* Mise à jour de pos *)
-			clauses.(i) <- c ;
-			current.(i) <- false, c, [] ;
+			clauses.a.(i) <- c ;
+			current.a.(i) <- false, c, [] ;
 			aux tail (i+1)
 	in
 	aux cnf.clauses 0 ;
@@ -116,8 +114,8 @@ let solve cnf print =
 	ordo cnf ;
 	
 	(* Initialisation de current, pos, solution et de la pile des instanciations *)
-	let solution = make (cnf.v_real+1) 0 in
-	let levels = make (cnf.v_real+1) 0 in
+	let solution = Array.make (cnf.v_real+1) 0 in
+	let levels = Array.make (cnf.v_real+1) 0 in
 	let clauses, current, pos = cnf_to_vect cnf solution in
 	let stack = create_stack () in		(* stack contient initialement 0 en fond de pile *)
 	

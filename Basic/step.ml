@@ -9,8 +9,7 @@ open Stack
 open Print_step
 open Learning
 
-
-
+open DynArray
 
 		(** BOOLEAN CONSTRAINT PROPAGATION **)
 
@@ -22,8 +21,8 @@ let find_unit current solution =
 		let i = ref 0 in
 		let lit = ref 0 in
 		let found = ref false in
-		while not !found && !i < length current do
-			let b, c, _ = current.(!i) in
+		while not !found && !i < current.length do
+			let b, c, _ = current.a.(!i) in
 			if not b && List.tl c = [] then
 				begin
 				found := true ;
@@ -157,9 +156,8 @@ let continue stack clauses current pos solution levels k back level print =
 	(* On vient de découvrir la clause vide : on commence le backtrack *)
 	if solution.(0) < 0 && not !back then
 		begin
-		let g = graph current solution !level in
-		let c = iter_learning g clauses current solution levels (-solution.(0)-1) !level in
-		Dot.compile g (Array.length solution) ;
+		iter_learning clauses current solution levels (-solution.(0)-1) !level ;
+		graph current solution !level ;
 		failwith("coucou") ;
 		k := pick stack ;		(* On a besoin de connaître la valeur à dépiler *)
 		print_new_backtrack print ;

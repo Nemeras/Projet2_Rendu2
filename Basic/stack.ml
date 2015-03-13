@@ -4,7 +4,7 @@
 
 open List
 
-
+open DynArray
 		(** STRUCTURE DE PILE **)
 
 (* Chaque étage de la pile contient :
@@ -76,9 +76,9 @@ let rec update_remove n stack current solution list_pos level =
 	match list_pos with
 	| [] -> ()
 	| h::t ->
-		let boole, c, c2 = current.(h) in
+		let boole, c, c2 = current.a.(h) in
 		let new_c = List.filter (fun i -> i <> n) c in
-		current.(h) <- boole, new_c, (n,level)::c2 ;
+		current.a.(h) <- boole, new_c, (n,level)::c2 ;
 		if new_c = [] then
 			solution.(0) <- -h-1 ;
 		update_remove n stack current solution t level
@@ -89,10 +89,10 @@ let rec update_inactivate n stack current pos list_pos =
 	match list_pos with
 	| [] -> [] ;
 	| h::t ->
-		let boole, c, c2 = current.(h) in
+		let boole, c, c2 = current.a.(h) in
 		if not boole then
 			begin
-			current.(h) <- true, c, c2 ;
+			current.a.(h) <- true, c, c2 ;
 			inactivate_clause c pos h
 			end
 		;
@@ -118,8 +118,8 @@ let rec backtrack_activate n changes current pos =
 	match changes with
 	| [] -> ()
 	| h::t ->
-		let _, c, c2 = current.(h) in
-		current.(h) <- false, c, c2 ;
+		let _, c, c2 = current.a.(h) in
+		current.a.(h) <- false, c, c2 ;
 		activate_clause c pos h ;
 		backtrack_activate n t current pos
 
@@ -136,9 +136,9 @@ let rec backtrack_restore n to_restore current level =
 	match to_restore with
 	| [] -> ()
 	| h::tail ->
-		let boole, c, c2 = current.(h) in
+		let boole, c, c2 = current.a.(h) in
 		let new_c2 = aux_restore c2 level in
-		current.(h) <- boole, n::c, new_c2 ;
+		current.a.(h) <- boole, n::c, new_c2 ;
 		backtrack_restore n tail current level
 
 
