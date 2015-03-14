@@ -1,0 +1,3 @@
+clauses ->
+ 
+current ->bool*clause*suppr*decision

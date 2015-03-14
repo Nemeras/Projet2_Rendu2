@@ -9,21 +9,20 @@ open Stack
 open Print_step
 open Learning
 
-
-
+open DynArray
 
 		(** BOOLEAN CONSTRAINT PROPAGATION **)
 
 
-(* Cherche un littéral présent dans une clause unitaire non encore vraie.
+(* Cherche  un littéral présent dans une clause unitaire non encore vraie.
    Renvoie 0 s'il y a une contradiction, ou si un tel littéral n'existe pas. *)
 let find_unit current solution =
 	if solution.(0) = 0 then
 		let i = ref 0 in
 		let lit = ref 0 in
 		let found = ref false in
-		while not !found && !i < length current do
-			let b, c, _ = current.(!i) in
+		while not !found && !i < current.length do
+			let b, c, _ = current.a.(!i) in
 			if not b && List.tl c = [] then
 				begin
 				found := true ;
@@ -118,7 +117,7 @@ let backtrack_step stack current pos solution levels k back level print =
 	
 	(* Si la valeur de début de pile est positive et n'est pas issue d'une boolean constraint propagation,
 	   donc pas nécessaire, on peut supposer l'opposé. On arrête alors le backtrack.                       *)
-	if hlevel stack = !level && !k > 0 && solution.(!k) = 1 then
+	if !k > 0 && solution.(!k) = 1 then
 		begin
 		solution.(0) <- 0 ;
 		back := false ;
@@ -153,21 +152,25 @@ let backtrack_step stack current pos solution levels k back level print =
 
 (* Implémente une itération de la boucle *)
 let continue stack clauses current pos solution levels k back level print =
-	
+  let nb_back = ref 1 in
 	(* On vient de découvrir la clause vide : on commence le backtrack *)
 	if solution.(0) < 0 && not !back then
 		begin
-		iter clauses current solution levels (-solution.(0)-1) !level ;
-		graph current solution !level ;
-		failwith("coucou") ;
+		iter_learning clauses current solution levels (-solution.(0)-1) !level ;
+		(* graph current solution !level ; *)
+		(* failwith("coucou") ; *)
 		k := pick stack ;		(* On a besoin de connaître la valeur à dépiler *)
 		print_new_backtrack print ;
-		back := true
+		back := true;
+		
+	        nb_back:= 1
 		end
 	
 	(* Backtracking : on n'a pas encore pu faire de nouvelle hypothèse pour enlever la contradiction *)
 	else if !back then
-		backtrack_step stack current pos solution levels k back level print	
+	        for i=1 to !nb_back do
+		backtrack_step stack current pos solution levels k back level print;
+		done
 	
 	(* S'il n'y a pas de contradiction : on suppose par défaut la première variable libre comme vraie *)
 	else

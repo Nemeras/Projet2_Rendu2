@@ -1,6 +1,6 @@
 type 'a dynarray = {mutable a : 'a array; mutable length : int};;
-
-let create_dynarray l = {a=Array.make l (fun i -> []) ;length= l};;
+  
+let make l cst= {a=Array.make l cst ;length= l};;
 
 let func_add dyn i =
 match i with

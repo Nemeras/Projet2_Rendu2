@@ -1,0 +1,3 @@
+clauses -> clauses de depart
+ 
+current -> bool*clause*suppr*decision

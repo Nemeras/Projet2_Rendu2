@@ -1,0 +1,27 @@
+digraph G {
+ size ="4,4";
+-10 -> 0;
+-5 -> -12;
+-6 -> -12;
+-12 -> -10;
+-10 -> -8;
+-8 -> 0;
+ 0 [label="conflict",style=filled,color=crimson]; 
+-5 [label="-5",style=filled,color="ghostwhite"];
+-6 [label="-6",style=filled,color="cornflowerblue"];
+-8 [label="-8",style=filled,color="cornflowerblue"];
+-10 [label="-10",style=filled,color="cornflowerblue"];
+-12 [label="-12",style=filled,color="cornflowerblue"];
+}lowerblue"];
+12 [label="12",style=filled,color="cornflowerblue"];
+-4 [label="-4",style=filled,color="ghostwhite"];
+-5 [label="-5",style=filled,color="ghostwhite"];
+-9 [label="-9",style=filled,color="cornflowerblue"];
+-11 [label="-11",style=filled,color="ghostwhite"];
+-13 [label="-13",style=filled,color="cornflowerblue"];
+-19 [label="-19",style=filled,color="cornflowerblue"];
+}led,color="cornflowerblue"];
+-14 [label="-14",style=filled,color="cornflowerblue"];
+-16 [label="-16",style=filled,color="ghostwhite"];
+-17 [label="-17",style=filled,color="cornflowerblue"];
+}
