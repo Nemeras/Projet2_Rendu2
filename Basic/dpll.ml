@@ -107,7 +107,7 @@ let init cnf stack current pos solution levels print =
 	False si cnf n'est pas satisfiable.
 	True solution si cnf est satisfiable, avec solution une instanciation qui la satisfait. *)
 
-let solve cnf print =
+let solve cnf print draw =
 	
 	(* Tri des littéraux dans les clauses par indice de variable croissant,
 	   élimination des tautologies.                                         *)
@@ -142,13 +142,13 @@ let solve cnf print =
 		if abs !k = cnf.v_real then
 			(* S'il y a contradiction : backtrack *)
 			if solution.(0) < 0 then
-				continue stack clauses current pos solution levels k back level print
+				continue stack clauses current pos solution levels k back level print draw
 			(* Sinon : c'est fini *)
 			else
 				k := cnf.v_real + 1
 		(* Sinon : on continue *)
 		else
-			continue stack clauses current pos solution levels k back level print
+			continue stack clauses current pos solution levels k back level print draw
 	done ;
 	
 	

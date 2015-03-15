@@ -11,6 +11,7 @@ open Learning
 
 open DynArray
 
+
 		(** BOOLEAN CONSTRAINT PROPAGATION **)
 
 
@@ -127,7 +128,6 @@ let backtrack_step stack current pos solution levels k back level print =
 		update !k stack current pos solution (fst pos.(- !k)) (snd pos.(- !k)) !level ;	(* On suppose l'opposé *)
 		print_hyp !k print ;
 		solution.(- !k) <- -1 ;
-		
 		end
 	
 	(* Sinon, il faut continuer le backtrack *)
@@ -149,36 +149,58 @@ let backtrack_step stack current pos solution levels k back level print =
 		k := pick stack
 		end
 
+
+
 let rec hlev clause solution levels ignore=
 match clause with
 |[]->0
 |h::t when abs (solution.(abs h)) = 1 && (abs h) <> (ignore) -> max (levels.(abs h)) (hlev t solution levels ignore)
 |h::t -> hlev t solution levels ignore;; 
 
+
+
 (* Implémente une itération de la boucle *)
-let continue stack clauses current pos solution levels k back level print =
+let continue stack clauses current pos solution levels k back level print draw =
   let nb_back = ref 1 in
 	(* On vient de découvrir la clause vide : on commence le backtrack *)
 	if solution.(0) < 0 && not !back then
 		begin
-		  let new_clause=iter_learning clauses current solution levels (-solution.(0)-1) !level in
-		(* graph current solution !level ; *)
-		(* failwith("coucou") ; *)
+		let activate = ref false in
+		if !draw then
+			begin
+				Printf.printf "\nConflit détecté. Que voulez-vous faire ?\ng : générer le graphe des confits\nc : continuer jusqu'au prochain conflit\nt : désactiver le mode interactif\n\n" ;
+				flush stdout ;
+				let key = Scanf.scanf "%c\n" (fun x -> x) in
+				match key with
+				| 'g' -> activate := true
+				| 't' -> draw := false
+				| 'c' -> ()
+				| _ -> failwith "Saisie erronée\n"
+			end
+		;
+		
+		let g = graph current solution !level !activate in
+		let new_clause = iter_learning g clauses current solution levels (-solution.(0)-1) !level !activate in
+		if !activate then
+			Dot.compile g (Array.length solution - 1)
+		;
+		
 		k := pick stack ;		(* On a besoin de connaître la valeur à dépiler *)
 		print_new_backtrack print ;
-		back := true;
+		back := true ;
 		let clause_mod = Stack.maj_clause_learning stack new_clause levels (clauses.length) in 
-		DynArray.add clauses new_clause [];
-		DynArray.add current clause_mod (false,[],[]);
-	        nb_back:= !level + 1 - (hlev new_clause solution levels (abs !k));
-		print_int !nb_back;
-		print_newline();
+		DynArray.add clauses new_clause [] ;
+		DynArray.add current clause_mod (false,[],[]) ;
+		(*print_string (Cnf.string_of_clause new_clause) ;*)
+	        nb_back:= !level + 1 - (hlev new_clause solution levels (abs !k)) ;
+		(*print_int !nb_back;
+		print_newline();*)
 		end
 	
 	(* Backtracking : on n'a pas encore pu faire de nouvelle hypothèse pour enlever la contradiction *)
 	else if !back then
 	        for i=1 to !nb_back do
-		backtrack_step stack current pos solution levels k back level print;
+			backtrack_step stack current pos solution levels k back level print
 		done
 	
 	(* S'il n'y a pas de contradiction : on suppose par défaut la première variable libre comme vraie *)

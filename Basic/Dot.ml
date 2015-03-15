@@ -28,8 +28,8 @@ graph.c.(var) <- couleur;;
 let rec compile_liste liste buffer=
 match liste with
 |[]->();
-|(sommet1,sommet2)::tail->(fprintf buffer "%d -> %d;\n" sommet1 sommet2);compile_liste tail buffer;
-|_-> failwith "probleme dans compile_liste";;
+|(sommet1,sommet2)::tail->(fprintf buffer "%d -> %d;\n" sommet1 sommet2);compile_liste tail buffer
+(*|_-> failwith "probleme dans compile_liste";;*)
 
 let compile_color tc buffer nb_variables=
 fprintf buffer " 0 [label=\"conflict\",style=filled,color=crimson]; \n";
@@ -50,7 +50,6 @@ let compile graph nb_variables=
 fprintf buffer "digraph G {\n size =\"4,4\";\n";
 compile_liste graph.a buffer;
 compile_color graph.c buffer nb_variables;
-fprintf stdout "YOLO"
 ;;
 
 (*let functest i= match i with
