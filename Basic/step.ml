@@ -40,6 +40,7 @@ let find_unit current solution =
 		0,0
 
 
+(** A RAJOUTER AU DEBUT DE L'EXECUTION **)
 (* Cherche un littéral dont la valeur est inconnue mais dont la négation n'apparaît pas dans current.
    Renvoie 0 si un tel littéral n'existe pas.                                                         *)
 (*let find_single pos solution =
@@ -77,10 +78,11 @@ let find_consequences current pos solution =
 
 (* Effectue la boolean constraint propagation sur toutes les variables présentes sous une seule polarité
    ou présentes dans une clause unitaire.                                                                *)
-let rec propa stack current pos solution levels level print =
+let rec propa stack current pos solution levels orders level print =
 	let a, b = find_consequences current pos solution in
 	let x = ref a in
 	let y = ref b in
+	let compt = ref 1 in
 	while !x <> 0 do
 		if solution.(0) < 0 then
 			x := 0
@@ -101,6 +103,8 @@ let rec propa stack current pos solution levels level print =
 				update !x stack current pos solution (fst pos.(- !x)) (snd pos.(- !x)) level
 				end
 			;
+			orders.(abs !x) <- !compt ;
+			incr compt ;
 			let a, b = find_consequences current pos solution in
 			x := a ;
 			y := b ;
@@ -114,7 +118,7 @@ let rec propa stack current pos solution levels level print =
 
 
 (* Effectue une étape de backtrack *)
-let backtrack_step stack current pos solution levels k back level print =
+let backtrack_step stack current pos solution levels orders k back level print =
 	
 	(* Si la valeur de début de pile est positive et n'est pas issue d'une boolean constraint propagation,
 	   donc pas nécessaire, on peut supposer l'opposé. On arrête alors le backtrack.                       *)
@@ -128,6 +132,7 @@ let backtrack_step stack current pos solution levels k back level print =
 		update !k stack current pos solution (fst pos.(- !k)) (snd pos.(- !k)) !level ;	(* On suppose l'opposé *)
 		print_hyp !k print ;
 		solution.(- !k) <- -1 ;
+		orders.(- !k) <- 0
 		end
 	
 	(* Sinon, il faut continuer le backtrack *)
@@ -160,7 +165,7 @@ match clause with
 
 
 (* Implémente une itération de la boucle *)
-let continue stack clauses current pos solution levels k back level print draw =
+let continue stack clauses current pos solution levels orders k back level print draw =
   let nb_back = ref 1 in
 	(* On vient de découvrir la clause vide : on commence le backtrack *)
 	if solution.(0) < 0 && not !back then
@@ -168,7 +173,7 @@ let continue stack clauses current pos solution levels k back level print draw =
 		let activate = ref false in
 		if !draw then
 			begin
-				Printf.printf "\nConflit détecté. Que voulez-vous faire ?\ng : générer le graphe des confits\nc : continuer jusqu'au prochain conflit\nt : désactiver le mode interactif\n\n" ;
+				print_string "\nConflit détecté. Que voulez-vous faire ?\ng : générer le graphe des confits\nc : continuer jusqu'au prochain conflit\nt : désactiver le mode interactif\n\n" ;
 				flush stdout ;
 				let key = Scanf.scanf "%c\n" (fun x -> x) in
 				match key with
@@ -180,7 +185,7 @@ let continue stack clauses current pos solution levels k back level print draw =
 		;
 		
 		let g = graph current solution !level !activate in
-		let new_clause = iter_learning g clauses current solution levels (-solution.(0)-1) !level !activate in
+		let new_clause = iter_learning g clauses current solution levels orders (-solution.(0)-1) !level !activate in
 		if !activate then
 			Dot.compile g (Array.length solution - 1)
 		;
@@ -188,7 +193,7 @@ let continue stack clauses current pos solution levels k back level print draw =
 		k := pick stack ;		(* On a besoin de connaître la valeur à dépiler *)
 		print_new_backtrack print ;
 		back := true ;
-		let clause_mod = Stack.maj_clause_learning stack new_clause levels (clauses.length) in 
+		let clause_mod = Stack.maj_clause_learning stack new_clause pos levels (clauses.length) in 
 		DynArray.add clauses new_clause [] ;
 		DynArray.add current clause_mod (false,[],[]) ;
 		(*print_string (Cnf.string_of_clause new_clause) ;*)
@@ -200,7 +205,7 @@ let continue stack clauses current pos solution levels k back level print draw =
 	(* Backtracking : on n'a pas encore pu faire de nouvelle hypothèse pour enlever la contradiction *)
 	else if !back then
 	        for i=1 to !nb_back do
-			backtrack_step stack current pos solution levels k back level print
+			backtrack_step stack current pos solution levels orders k back level print
 		done
 	
 	(* S'il n'y a pas de contradiction : on suppose par défaut la première variable libre comme vraie *)
@@ -214,5 +219,6 @@ let continue stack clauses current pos solution levels k back level print draw =
 			print_hyp !k print ;
 			update !k stack current pos solution (snd pos.(!k)) (fst pos.(!k)) !level ;
 			solution.(!k) <- 1 ;
+			orders.(!k) <- 0
 			end
 		end

@@ -70,10 +70,10 @@ let cnf_to_vect cnf solution =
 
 (* Détermine la première hypothèse à faire, après avoir éliminé les clauses unitaires
    et les variables présentes sous une seule polarité.                                *)
-let init cnf stack current pos solution levels print =
+let init cnf stack current pos solution levels orders print =
 	
 	(* On déduit les conséquences possibles *)
-	propa stack current pos solution levels (-1) print ;
+	propa stack current pos solution levels orders (-1) print ;
 	
 	let k = ref 1 in
 	(* Si, après les affectations nécessaires, on n'a pas trouvé de contradiction, on peut continuer *)
@@ -116,11 +116,12 @@ let solve cnf print draw =
 	(* Initialisation de current, pos, solution et de la pile des instanciations *)
 	let solution = Array.make (cnf.v_real+1) 0 in
 	let levels = Array.make (cnf.v_real+1) 0 in
+	let orders = Array.make (cnf.v_real+1) 0 in
 	let clauses, current, pos = cnf_to_vect cnf solution in
 	let stack = create_stack () in		(* stack contient initialement 0 en fond de pile *)
 	
 	(* Détection des clauses unitaires et des variables sous une seule polarité *)
-	let k = init cnf stack current pos solution levels print in
+	let k = init cnf stack current pos solution levels orders print in
 	
 	
 	(* Boucle principale *)
@@ -136,19 +137,19 @@ let solve cnf print draw =
 		
 		(* Détection des clauses unitaires et des variables sous une seule polarité *) 
 		if solution.(0) = 0 then
-			propa stack current pos solution levels !level print ;
+			propa stack current pos solution levels orders !level print ;
 		
 		(* Si toutes les variables ont été instanciées *)
 		if abs !k = cnf.v_real then
 			(* S'il y a contradiction : backtrack *)
 			if solution.(0) < 0 then
-				continue stack clauses current pos solution levels k back level print draw
+				continue stack clauses current pos solution levels orders k back level print draw
 			(* Sinon : c'est fini *)
 			else
 				k := cnf.v_real + 1
 		(* Sinon : on continue *)
 		else
-			continue stack clauses current pos solution levels k back level print draw
+			continue stack clauses current pos solution levels orders k back level print draw
 	done ;
 	
 	

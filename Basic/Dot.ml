@@ -50,7 +50,7 @@ let compile graph nb_variables=
 fprintf buffer "digraph G {\n size =\"4,4\";\n";
 compile_liste graph.a buffer;
 compile_color graph.c buffer nb_variables;
-;;
+close_out buffer
 
 (*let functest i= match i with
   |0 -> Red

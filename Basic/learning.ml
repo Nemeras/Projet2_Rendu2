@@ -4,16 +4,15 @@ open Dot
 
 open DynArray
 
-let nbr_blue c level current solution levels =
+let nbr_blue c level current solution levels orders =
 	let rec aux c lit =
 		match c with
-		| [] -> true, 0
+		| [] -> true, lit
 		| x::q when x*solution.(abs x) < 0 && levels.(abs x) = level ->
 			(*Printf.printf "%d\n" x ;*)
 			if lit = 0 then
 				aux q x
-			(* A optimiser : il faudrait prendre celui qui a été mis à faux le plus récemment *)
-			else if abs solution.(abs lit) > abs solution.(abs x) then
+			else if (*abs solution.(abs lit) > abs solution.(abs x)*) orders.(abs lit) > orders.(abs x) then
 				false, lit
 			else
 				false, x
@@ -22,10 +21,10 @@ let nbr_blue c level current solution levels =
 	in
 	aux c 0
 
-let iter_learning graph clauses current solution levels start level activate =
+let iter_learning graph clauses current solution levels orders start level activate =
 	let pos_c = ref start in
 	let c = ref clauses.a.(!pos_c) in
-	let a, b = nbr_blue clauses.a.(!pos_c) level current solution levels in
+	let a, b = nbr_blue clauses.a.(!pos_c) level current solution levels orders in
 	let fini = ref a in
 	let lit = ref b in
 	while (not !fini) do
@@ -33,8 +32,9 @@ let iter_learning graph clauses current solution levels start level activate =
 			set_color (- !lit) Purple (Array.length solution - 1) graph ;
 		pos_c := (abs solution.(abs !lit)) - 2 ;
 		c := fusion (List.filter (fun i -> i <> !lit) !c) (List.filter (fun i -> i <> - !lit) clauses.a.(!pos_c)) ;
-		let a, b = nbr_blue !c level current solution levels in
-		fini := a ; lit := b
+		let a, b = nbr_blue !c level current solution levels orders in
+		fini := a ;
+		lit := b
 	done ;
 	if activate then
 		set_color (- !lit) Yellow (Array.length solution - 1) graph ;
@@ -42,23 +42,26 @@ let iter_learning graph clauses current solution levels start level activate =
 
 
 let rec add pos_c graph current solution start level v =
+	let rec aux l start =
+		match l with
+		| [] -> print_newline() ;
+		| (n,_)::q ->
+			Printf.printf "%d " n ;
+			add_arete graph (-n, start) ;
+			set_color (-n) White v graph ;
+			aux q start
+	in
 	match current.a.(pos_c) with
 	| _,_,[] -> ()
 	| a,b,(n,l)::q when l = level ->
 		add_arete graph (-n, start) ;
 		set_color (-n) Blue v graph ;
-		set_color start Blue v graph ;
-		current.a.(pos_c) <- a,b,q ;		
+		current.a.(pos_c) <- a,b,q ;
 		if abs solution.(abs n) > 1 then
 			add ((abs solution.(abs n)) - 2) graph current solution (-n) level v ;
 		add pos_c graph current solution start level v
-	| a,b,(n,l)::q ->
-		add_arete graph (-n, start) ;
-		set_color (-n) White v graph ;
-		current.a.(pos_c) <- a,b,q ;		
-		if abs solution.(abs n) > 1 then
-			add ((abs solution.(abs n)) - 2) graph current solution (-n) level v ;
-		add pos_c graph current solution start level v
+	| a,b,q ->
+		aux q start
 
 
 let graph current solution level activate =
