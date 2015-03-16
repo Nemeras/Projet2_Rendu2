@@ -5,21 +5,21 @@ open Dot
 open DynArray
 
 let nbr_blue c level current solution levels orders =
-	let rec aux c lit =
+	let rec aux c lit found =
 		match c with
-		| [] -> true, lit
+		| [] -> found <= 1, lit
 		| x::q when x*solution.(abs x) < 0 && levels.(abs x) = level ->
 			(*Printf.printf "%d\n" x ;*)
-			if lit = 0 then
-				aux q x
-			else if (*abs solution.(abs lit) > abs solution.(abs x)*) orders.(abs lit) > orders.(abs x) then
-				false, lit
+			if found = 0 then
+				aux q x 1
+			else if orders.(abs lit) > orders.(abs x) then
+				aux q lit (found + 1)
 			else
-				false, x
+				aux q x (found + 1)
 		| _::q ->
-			aux q lit
+			aux q lit found
 	in
-	aux c 0
+	aux c 0 0
 
 let iter_learning graph clauses current solution levels orders start level activate =
 	let pos_c = ref start in
