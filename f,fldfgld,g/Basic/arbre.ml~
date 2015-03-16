@@ -1,0 +1,3 @@
+type arbre_resolution =
+|Leaf of int
+|Node of int*arbre_resolution

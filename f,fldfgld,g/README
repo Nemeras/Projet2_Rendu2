@@ -1,0 +1,88 @@
+								-- Projet 2 : Rendu 1 --
+
+
+
+REMARQUE
+
+Bien nous ne soyons pas un binôme avancé, nous avons tout de même implémenté les littéraux surveillés.
+
+
+
+COMPILATION / EXECUTION
+
+* Pour compiler : make --> Deux exécutables : resol pour DPLL sans littéraux surveillés, et resol-wl pour DPLL avec littéraux surveillés.
+
+* resol prend comme seul argument le fichier .cnf à lire.
+  ./resol ex.cnf lance l'algorithme de Davis-Putnam en version historique sur ex.cnf.
+  Rajouter l'option -print pour activer l'affichage des étapes de l'algorithme.
+
+
+
+FICHIERS
+
+* Le dossier Tests contient les fichiers de tests mentionnés dans ce README.
+
+* Le dossier Basic contient tous les fichiers concernant l'algorithme sans littéraux surveillés. Le dossier Watched_literals contient quant à lui tous les fichiers concernant l'algorithme avec littéraux surveillés.
+
+* Le fichier sort.ml contient l'implémentation de List.sort_uniq, fonction apparue dans OCaml 4.02, et qui n'est pas présente sur les ordinateurs des salles informatique.
+
+* Le fichier cnf.ml s'occupe de toutes les opération directement reliées aux clauses et aux cnf hors traitement par l'algorithme, ainsi que de l'affichage de la solution.
+
+* Le fichier dpll.ml s'occupe de l'initialisation de l'algorithme, et de sa boucle principale.
+
+* Le fichier step.ml contient les implémentations de toutes les fonctions utilisées dans la boucle principale de dpll.ml.
+
+* Le fichier stack.ml s'occupe de la gestion de la pile et de la mise à jour de l'ensemble de travail sur les clauses.
+
+* Le fichier print_step.ml implémente l'affichage.
+
+* Dans le cas des littéraux surveillés, watched.ml implémente toutes les fonctions concernant la manipulation / vérification des clauses avec littéraux surveillés.
+
+
+
+CHOIX D'IMPLEMENTATION
+
+* Les clauses sont représentées par des listes d'entiers représentant les littéraux ; les listes permettent de vérifier si une clause est de longueur 1 ou 0 facilement, ce qui est pratique pour la détection de clauses unitaire, et de la clause vide. L'ensemble de travail est un tableau de clauses.
+
+* Version de base (sans littéraux surveillés) :
+	On associe à chaque clause un booléen indiquant si elle est satisfaite par l'instanciation actuelle, ce qui permet de ne pas la parcourir inutilement.
+	Lorsqu'un littéral est mis à faux, on le supprime de toutes les clause où il apparaît. Nous avons pensé que parcourir toutes les clauses pour le faire serait laborieux et long ; nous avons donc retenu les indices des clauses dans lesquelles apparaissent chacun des littéraux, pour minimiser les opérations d'un pari et des backtracks. Ainsi, on retient dans la pile certaines modifications faites par l'algorithme lorsqu'il affecte une valeur à une variable.
+	Cette méthode permet donc de ne pas parcourir chaque clause pour chaque étape de l'algorithme, et augmente donc son efficacité sur des longues instances.
+
+* Version avec littéraux surveillés :
+	La représentation des clauses par des listes permet d'implémenter facilement les littéraux surveillés, qui seront les deux premiers littéraux de chaque liste. En assurant que tous les littéraux évalués à faux sont au fond de la liste représentant la clause, cela permet de changer un littéral surveillé facilement si celui-ci est mis à faux : il suffit de choisir le littéral suivant.
+	On n'a alors plus un si grand besoin de retenir les positions de chaque littéral, ce qui allège l'algorithme.
+
+
+
+PRETRAITEMENT
+
+	Les prétraitements effectués sont ceux demandés dans le sujet (détection des tautologies et des clauses unitaires). De plus, dans la version de base, on enregistre comme indiqué plus haut les indices des clauses dans lesquelles apparaissent chacun des littéraux.
+	Enfin, dans les deux verions, on trie les littéraux dans les clauses par indice de variable croissant, ce qui peut faciliter la tâche de l'algorithme, car celui-ci fait toujours un pari sur la variable libre de plus petit indice ; cependant, comme l'ordre n'est pas préservé au cours de l'exécution, l'incidence de ce tri est minime.
+
+
+
+REPARTITION DES TACHES
+
+	Nous avons réfléchi ensemble sur les structures de données et la démarche à adopter. Puis, chacun a codé, selon les besoins de l'autre, les parties que l'on s'était assignées. La répartition du travail a été la suivante :
+	* Jean-Yves Franceschi : Codage de tout ce qui concerne la boucle principale de l'algorihme, debug, mise en forme du rendu.
+	* Clément Sartori : Gestion du git, codage de tout ce qui concerne la pile d'instanciation et les littéraux surveillés, tests de la validité et des performances de l'algorithme, relecture finale.
+
+
+
+PERFORMANCES
+
+* L'algorithme dans ses deux versions semble rendre un bon résultat dans un temps raisonnable. En particulier, il termine quasi-instantanément (moins de 5 ms) sur nos machines sur les exemples fournis, et occupe très peu de mémoire, car il ne considère que l'ensemble des clauses données en entrée, ou un ensemble plus restreint. De manière générale, sur des instances de 3-SAT dont le nombre de clauses ne dépasse pas 100, les deux algorithmes terminent en moins d'une seconde.
+  Cependant, sur des instances très longues comme long_12.cnf et long_13.cnf (qui ne sont pourtant pas très complexes : ce sont toutes les clauses possibles de longueurs respectives 12 et 13), l'algorithme de base est très lent, et ne termine pas avant au moins plusieurs dizaines de secondes, tandis que minisat les résout en moins de 3 secondes..
+  Mais l'algorithme reste performant comparé à celui de Davis-Putnam, qui en version non optimisée peinait sur les fichiers exemple fournis.
+
+* C'est justement sur les fichiers long_12.cnf et long_13.cnf que l'on peut observer l'efficacité des littéraux surveillés, car, même sur ces instances très longues, et avec des clauses assez grandes, l'algorithme avec littéraux surveillés termine en moins d'une seconde : il arrive donc à faire mieux que minisat sur ce type d'instance. L'écart est plus flagrant avec long_long.cnf, sur lequel l'algorithme avec littéraux surveillés termine en moins d'une seconde, tandis que l'algorithme de base netermine pas dans un temps raionnable et que minisat répond "INDETERMINATE" (cela s'explique par la longueur des clauses (16 littréaux par clause) et leur nombre (plus de 80000).
+  Cependant, sur les exemples basic>wl.cnf et basic>wl2.cnf (trouvés sur Internet, nous n'avons pas réussi à en trouver par nous-même autrement que par l'aléatoire), on observe que l'algorithme sans littéraux surveillés termine presque instantanément, tandis qu'avec les littéraux surveillés, l'algorithme termine beaucoup plus lentement (entre 2 et 100 fois).
+  On peut l'expliquer en avançant que le nombre de variables dans ces fichiers est assez grand, tandis que ce sont des instances de 3-SAT ; l'avantage des littéraux surveillés disparaissant sur des instances avec des clauses assez petites (les deux littéraux surveillés forment une part importante de la clause, et il est important de tous les surveiller, contrairement au cas où ils sont absents où l'on connaît déjà leurs positions) peut donc expliquer leur perte de performance sur ce type de fichier.
+  C'est aussi dû au nombre d'itérations de la boucle principale, dont les écarts entre la verion de base et celle avec littéraux surveillés varie de la même manière que leur temps d'exécution (environ 150000 pour l'algorithme de base, 2 à 100 fois plus pour celui avec littéraux surveillés) : c'est le placement des littéraux surveillés  qui pourrait être en cause, car, s'ils sont mal choisis, ils pourraient retarder par exemple la désactivation (passage à vrai) d'une clause ; pour améliorer ces performances, on pourrait ainsi choisir plus judicieusement les littéraux surveillés.
+
+
+
+RESTERAIT A FAIRE...
+
+	Il serait intéressant de trouver une bonne heuristique pour le choix des littéraux surveillés, ou encore d'améliorer le prétraitement pour accélérer l'exécution.

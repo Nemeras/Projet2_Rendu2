@@ -1,0 +1,25 @@
+digraph G {
+ size ="4,4";
+2 -> 0;
+-15 -> 0;
+-15 -> -10;
+-1 -> -7;
+-3 -> -7;
+-7 -> 9;
+-1 -> 12;
+-1 -> -7;
+-3 -> -7;
+-7 -> 12;
+12 -> 9;
+9 -> -10;
+-10 -> 0;
+ 0 [label="conflict",style=filled,color=crimson]; 
+2 [label="2",style=filled,color="ghostwhite"];
+9 [label="9",style=filled,color="cornflowerblue"];
+12 [label="12",style=filled,color="cornflowerblue"];
+-1 [label="-1",style=filled,color="ghostwhite"];
+-3 [label="-3",style=filled,color="ghostwhite"];
+-7 [label="-7",style=filled,color="cornflowerblue"];
+-10 [label="-10",style=filled,color="gold"];
+-15 [label="-15",style=filled,color="ghostwhite"];
+}
