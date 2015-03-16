@@ -22,6 +22,7 @@ let find_unit current solution =
 		let lit = ref 0 in
 		let found = ref false in
 		while not !found && !i < current.length do
+				if !i = 97 then print_string "cocuocu\n" ;
 			let b, c, _ = current.a.(!i) in
 			if not b && List.tl c = [] then
 				begin
@@ -82,6 +83,10 @@ let rec propa stack current pos solution levels orders level print =
 	let x = ref a in
 	let y = ref b in
 	let compt = ref 1 in
+	for i = 1 to Array.length solution - 1 do
+		if solution.(i) != 0 && levels.(i) = level && orders.(i)+1 > !compt then
+			compt := orders.(i) + 1 ;
+	done ;
 	while !x <> 0 do
 		if solution.(0) < 0 then
 			x := 0
@@ -117,21 +122,27 @@ let rec propa stack current pos solution levels orders level print =
 
 
 (* Effectue une étape de backtrack *)
-let backtrack_step stack current pos solution levels orders k back level print =
+let backtrack_step stack current pos solution levels orders k back nb_back level nb_back print =
 	
 	(* Si la valeur de début de pile est positive et n'est pas issue d'une boolean constraint propagation,
 	   donc pas nécessaire, on peut supposer l'opposé. On arrête alors le backtrack.                       *)
-	if !k > 0 && solution.(!k) = 1 then
+	if nb_back = 0 && !k > 0 && solution.(!k) = 1 then
 		begin
 		solution.(0) <- 0 ;
 		back := false ;
 		k := backtrack stack current pos (snd pos.(!k)) !level ;	(* On retire !k *)
 		print_backtrack !k solution.(abs !k) print ;
-		k := - !k ;
-		update !k stack current pos solution (fst pos.(- !k)) (snd pos.(- !k)) !level ;	(* On suppose l'opposé *)
-		print_hyp !k print ;
-		solution.(- !k) <- -1 ;
-		orders.(- !k) <- 0
+		decr level ;
+		propa stack current pos solution levels orders !level print ;
+		if solution.(!k) = 0 then
+			begin
+			k := - !k ;
+			incr level ;
+			update !k stack current pos solution (fst pos.(- !k)) (snd pos.(- !k)) !level ;	(* On suppose l'opposé *)
+			print_hyp !k print ;
+			solution.(- !k) <- -1 ;
+			orders.(- !k) <- 0
+			end
 		end
 	
 	(* Sinon, il faut continuer le backtrack *)
@@ -140,14 +151,10 @@ let backtrack_step stack current pos solution levels orders k back level print =
 		if !k > 0 then
 			k := backtrack stack current pos (snd pos.(!k)) !level
 		else
-			if solution.(- !k) < -1 then
-				k := backtrack stack current pos (fst pos.(- !k)) !level
-			else
-				begin
-				decr level ;
-				k := backtrack stack current pos (fst pos.(- !k)) !level
-				end
+			k := backtrack stack current pos (fst pos.(- !k)) !level
 		;
+		if abs solution.(abs !k) = 1 then
+			decr level ;
 		print_backtrack !k solution.(abs !k) print ;
 		solution.(abs !k) <- 0 ;
 		k := pick stack
@@ -157,15 +164,13 @@ let backtrack_step stack current pos solution levels orders k back level print =
 
 let rec hlev clause solution levels ignore=
 match clause with
-|[]->0
-|h::t when abs (solution.(abs h)) = 1 && (abs h) <> (ignore) -> max (levels.(abs h)) (hlev t solution levels ignore)
+|[]-> -1
+|h::t when abs (solution.(abs h)) = 1 (*&& (abs h) <> (ignore)*) -> max (levels.(abs h)) (hlev t solution levels ignore)
 |h::t -> hlev t solution levels ignore;; 
 
 
-
 (* Implémente une itération de la boucle *)
-let continue bonus stack clauses current pos solution levels orders k back level print draw tableau_bonus=
-  let nb_back = ref 1 in
+let continue bonus stack clauses current pos solution levels orders k back nb_back level print draw tableau_bonus=
 	(* On vient de découvrir la clause vide : on commence le backtrack *)
 	if solution.(0) < 0 && not !back then
 		begin
@@ -195,17 +200,31 @@ let continue bonus stack clauses current pos solution levels orders k back level
 		let clause_mod = Stack.maj_clause_learning stack new_clause pos levels (clauses.length) in 
 		DynArray.add clauses new_clause [] ;
 		DynArray.add current clause_mod (false,[],[]) ;
-		(*print_string (Cnf.string_of_clause new_clause) ;*)
-	        nb_back:= !level + 1 - (hlev new_clause solution levels (abs !k)) ;
+		print_string (Cnf.string_of_clause new_clause) ;
+		(*Printf.printf "%d %d %d\n" solution.(2) solution.(10) solution.(15) ;*)
+		let x = hlev new_clause solution levels (abs !k) in
+		(*print_int x ; print_newline() ;*)
+		if x = -1 then
+			nb_back:= 1
+		else
+			nb_back:= !level + 1 - x
 		(*print_int !nb_back;
 		print_newline();*)
 		end
 	
 	(* Backtracking : on n'a pas encore pu faire de nouvelle hypothèse pour enlever la contradiction *)
 	else if !back then
-	        for i=1 to !nb_back do
-			backtrack_step stack current pos solution levels orders k back level print
-		done
+		begin
+		(*print_int !nb_back ; print_newline() ;*)
+		(*if !nb_back > 0 then
+			while !nb_back > 0 do*)
+				if abs solution.(abs !k) = 1 then
+					decr nb_back ;
+				backtrack_step stack current pos solution levels orders k back !nb_back level !nb_back print
+			(*done
+		else
+			backtrack_step stack current pos solution levels orders k back level 0 print*)
+		end
 	
 	(* S'il n'y a pas de contradiction : on suppose par défaut la première variable libre comme vraie *)
 	else

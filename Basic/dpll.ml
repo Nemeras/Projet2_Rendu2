@@ -119,10 +119,11 @@ let solve cnf print draw bonus =
 	
 	(* Détection des clauses unitaires et des variables sous une seule polarité *)
 	let k = init cnf stack current pos solution levels orders print in
-	let tableau_bonus = DynArray.make (List.length cnf.clauses) [-1] in
+	let tableau_bonus = DynArray.make (List.length cnf.clauses) [] in
 	
 	(* Boucle principale *)
 	let back = ref false in
+	let nb_back = ref 0 in
 	let compt = ref 0 in
 	let level = ref 0 in
 	while abs !k <= cnf.v_real && !k <> 0 do
@@ -140,20 +141,20 @@ let solve cnf print draw bonus =
 		if abs !k = cnf.v_real then
 			(* S'il y a contradiction : backtrack *)
 			if solution.(0) < 0 then
-				continue bonus stack clauses current pos solution levels orders k back level print draw tableau_bonus
+				continue bonus stack clauses current pos solution levels orders k back nb_back level print draw tableau_bonus
 			(* Sinon : c'est fini *)
 			else
 				k := cnf.v_real + 1
 		(* Sinon : on continue *)
 		else
-			continue bonus stack clauses current pos solution levels orders k back level print draw tableau_bonus
+			continue bonus stack clauses current pos solution levels orders k back nb_back level print draw tableau_bonus
 	done ;
 	
 	
 	if !k = 0 then
 	  begin
 	    Newprob.create_new_cnf tableau_bonus clauses;
-	    False;
+	    False
 	  end
 	else
 		True solution
