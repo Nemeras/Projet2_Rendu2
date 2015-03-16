@@ -158,14 +158,14 @@ let backtrack_step stack current pos solution levels orders k back level print =
 
 let rec hlev clause solution levels ignore=
 match clause with
-|[]->0
-|h::t when abs (solution.(abs h)) = 1 && (abs h) <> (ignore) -> max (levels.(abs h)) (hlev t solution levels ignore)
+|[]-> -1
+|h::t when solution.(abs h) = 1 (*&& (abs h) <> (ignore) *)-> let x = max (levels.(abs h)) (hlev t solution levels ignore) in x
 |h::t -> hlev t solution levels ignore;; 
 
 
 
 (* Implémente une itération de la boucle *)
-let continue stack clauses current pos solution levels orders k back level print draw =
+let continue stack clauses current pos solution levels orders k back level print draw =	
   let nb_back = ref 1 in
 	(* On vient de découvrir la clause vide : on commence le backtrack *)
 	if solution.(0) < 0 && not !back then
@@ -197,15 +197,21 @@ let continue stack clauses current pos solution levels orders k back level print
 		DynArray.add clauses new_clause [] ;
 		DynArray.add current clause_mod (false,[],[]) ;
 		(*print_string (Cnf.string_of_clause new_clause) ;*)
-	        nb_back:= !level + 1 - (hlev new_clause solution levels (abs !k)) ;
+		let x = (hlev new_clause solution levels (abs !k)) in
+		if x = -1 then
+			k := 0
+		else
+	        	nb_back:= !level + 1 - (hlev new_clause solution levels (abs !k)) ;
 		(*print_int !nb_back;
 		print_newline();*)
 		end
 	
 	(* Backtracking : on n'a pas encore pu faire de nouvelle hypothèse pour enlever la contradiction *)
 	else if !back then
-	        for i=1 to !nb_back do
-			backtrack_step stack current pos solution levels orders k back level print
+	        while !nb_back > 0 do
+			if abs solution.(abs !k) = 1 then
+				decr nb_back ;
+			backtrack_step stack current pos solution levels orders k back level print ;
 		done
 	
 	(* S'il n'y a pas de contradiction : on suppose par défaut la première variable libre comme vraie *)

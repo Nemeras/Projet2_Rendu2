@@ -64,7 +64,7 @@ let maj_clause_learning stack clause pos levels nb=
 	let clause_r = ref clause in
 	let liste_s = ref [] in
 	separate clause_r liste_s stack_e pos nb;
-	true,!clause_r,!liste_s;;
+	false,!clause_r,!liste_s;;
 
 
 		(** ACTIVATION / DESACTIVATION DE CLAUSES **)

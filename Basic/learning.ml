@@ -44,9 +44,8 @@ let iter_learning graph clauses current solution levels orders start level activ
 let rec add pos_c graph current solution start level v =
 	let rec aux l start =
 		match l with
-		| [] -> print_newline() ;
+		| [] -> ()
 		| (n,_)::q ->
-			Printf.printf "%d " n ;
 			add_arete graph (-n, start) ;
 			set_color (-n) White v graph ;
 			aux q start

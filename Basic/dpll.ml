@@ -48,7 +48,7 @@ type changing_clauses = (bool*clause*((int*int) list)) array
    Renvoie également un tableau pos : pos.(i) = l1, l2, où l1 est la liste des indices
    des clauses contenant le littéral i, et l2 la liste de celles contenant le littéral -i *)
 let cnf_to_vect cnf solution =
-	let clauses = DynArray.make(List.length cnf.clauses) [] in
+	let clauses = DynArray.make (List.length cnf.clauses) [] in
 	let current = DynArray.make (List.length cnf.clauses) (false,[],[]) in
 	let pos = Array.make (cnf.v_real+1) ([],[]) in
 	
