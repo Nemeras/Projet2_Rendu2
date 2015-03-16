@@ -10,8 +10,6 @@ open Cnf
 open Step
 open Stack
 open Print_step
-
-
 		(** STRUCTURE DE DONNEE - VARIABLES **)
 
 
@@ -48,7 +46,7 @@ type changing_clauses = (bool*clause*((int*int) list)) array
    Renvoie également un tableau pos : pos.(i) = l1, l2, où l1 est la liste des indices
    des clauses contenant le littéral i, et l2 la liste de celles contenant le littéral -i *)
 let cnf_to_vect cnf solution =
-	let clauses = DynArray.make (List.length cnf.clauses) [] in
+	let clauses = DynArray.make(List.length cnf.clauses) [] in
 	let current = DynArray.make (List.length cnf.clauses) (false,[],[]) in
 	let pos = Array.make (cnf.v_real+1) ([],[]) in
 	
@@ -107,12 +105,11 @@ let init cnf stack current pos solution levels orders print =
 	False si cnf n'est pas satisfiable.
 	True solution si cnf est satisfiable, avec solution une instanciation qui la satisfait. *)
 
-let solve cnf print draw =
+let solve cnf print draw bonus =
 	
 	(* Tri des littéraux dans les clauses par indice de variable croissant,
 	   élimination des tautologies.                                         *)
 	ordo cnf ;
-	
 	(* Initialisation de current, pos, solution et de la pile des instanciations *)
 	let solution = Array.make (cnf.v_real+1) 0 in
 	let levels = Array.make (cnf.v_real+1) 0 in
@@ -122,7 +119,7 @@ let solve cnf print draw =
 	
 	(* Détection des clauses unitaires et des variables sous une seule polarité *)
 	let k = init cnf stack current pos solution levels orders print in
-	
+	let tableau_bonus = DynArray.make (List.length cnf.clauses) [-1] in
 	
 	(* Boucle principale *)
 	let back = ref false in
@@ -143,17 +140,20 @@ let solve cnf print draw =
 		if abs !k = cnf.v_real then
 			(* S'il y a contradiction : backtrack *)
 			if solution.(0) < 0 then
-				continue stack clauses current pos solution levels orders k back level print draw
+				continue bonus stack clauses current pos solution levels orders k back level print draw tableau_bonus
 			(* Sinon : c'est fini *)
 			else
 				k := cnf.v_real + 1
 		(* Sinon : on continue *)
 		else
-			continue stack clauses current pos solution levels orders k back level print draw
+			continue bonus stack clauses current pos solution levels orders k back level print draw tableau_bonus
 	done ;
 	
 	
 	if !k = 0 then
-		False
+	  begin
+	    Newprob.create_new_cnf tableau_bonus clauses;
+	    False;
+	  end
 	else
 		True solution

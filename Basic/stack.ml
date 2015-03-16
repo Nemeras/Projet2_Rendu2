@@ -21,7 +21,6 @@ let is_empty stack =
 	match !stack with
 	| [] -> true
 	| _ -> false
-
 (* Renvoie l'élément de tête de la liste. *)
 let pick stack =
 	let k, _, _ = hd !stack in
@@ -42,11 +41,7 @@ let rec separate_aux clause liste_suppr v lvl list_true new_stack pos nb=
 		;
 		liste_suppr:=(-v,lvl)::(!liste_suppr);
 		clause:=List.filter (fun i -> i <> (-v)) (!clause)
-		end ;
-	if (List.exists (fun i -> i=v) (!clause)) then
-		new_stack:=(!new_stack)@[v,lvl,(nb::list_true)]
-	else
-		new_stack:=(!new_stack)@[v,lvl,list_true];;
+		end
 
 
 
@@ -64,7 +59,7 @@ let maj_clause_learning stack clause pos levels nb=
 	let clause_r = ref clause in
 	let liste_s = ref [] in
 	separate clause_r liste_s stack_e pos nb;
-	false,!clause_r,!liste_s;;
+	true,!clause_r,!liste_s;;
 
 
 		(** ACTIVATION / DESACTIVATION DE CLAUSES **)
