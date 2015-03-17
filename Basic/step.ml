@@ -22,7 +22,6 @@ let find_unit current solution =
 		let lit = ref 0 in
 		let found = ref false in
 		while not !found && !i < current.length do
-				if !i = 97 then print_string "cocuocu\n" ;
 			let b, c, _ = current.a.(!i) in
 			if not b && List.tl c = [] then
 				begin
@@ -162,11 +161,11 @@ let backtrack_step stack current pos solution levels orders k back nb_back level
 
 
 
-let rec hlev clause solution levels ignore=
-match clause with
-|[]-> -1
-|h::t when abs (solution.(abs h)) = 1 (*&& (abs h) <> (ignore)*) -> max (levels.(abs h)) (hlev t solution levels ignore)
-|h::t -> hlev t solution levels ignore;; 
+let rec hlev clause solution levels ignore =
+	match clause with
+	| []-> -1
+	| h::t when (*abs (solution.(abs h)) = 1 &&*) (abs h) <> (ignore) -> max (levels.(abs h)) (hlev t solution levels ignore)
+	| h::t -> hlev t solution levels ignore
 
 
 (* Implémente une itération de la boucle *)

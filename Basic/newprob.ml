@@ -1,6 +1,6 @@
 open Printf
 open DynArray
-       
+
 (*let rec print_clause buffer clause=
   match clause with
   |[]-> fprintf buffer "."
@@ -19,5 +19,4 @@ let create_new_cnf tableau_bonus clauses=
   let buffer = open_out "unsat.cnf" in
   fprintf buffer "p cnf 0 0\n";
   print_l buffer (tableau_bonus.a.(-1+tableau_bonus.length)) clauses tableau_bonus ;
-  close_out buffer;;
-  
+  close_out buffer

@@ -30,6 +30,7 @@ let hlevel stack =
 	let _, l, _ = hd !stack in
 	l
 
+
 (* A élaguer :p *)
 let rec separate_aux clause liste_suppr v lvl list_true new_stack pos nb=
 	if List.exists (fun i -> i=(-v)) (!clause) then 

@@ -21,7 +21,6 @@ let is_empty stack =
 	match !stack with
 	| [] -> true
 	| _ -> false
-
 (* Renvoie l'élément de tête de la liste. *)
 let pick stack =
 	let k, _, _ = hd !stack in
@@ -31,33 +30,37 @@ let hlevel stack =
 	let _, l, _ = hd !stack in
 	l
 
-let rec separate_aux clause liste_suppr v lvl list_true new_stack nb=
-if List.exists (fun i -> i=(-v)) (!clause) then 
-  begin
-    liste_suppr:=(-v,lvl)::(!liste_suppr);
-    clause:=List.filter (fun i -> i <> (-v)) (!clause);
-  end;
-if (List.exists (fun i -> i=v) (!clause)) then
-  new_stack:=(!new_stack)@[v,lvl,(nb::list_true)]
-else
-  new_stack:=(!new_stack)@[v,lvl,list_true];;
+
+(* A élaguer :p *)
+let rec separate_aux clause liste_suppr v lvl list_true new_stack pos nb=
+	if List.exists (fun i -> i=(-v)) (!clause) then 
+		begin
+		if v > 0 then
+			pos.(v) <- fst pos.(v), nb::(snd pos.(v))
+		else
+			pos.(-v) <- nb::(fst pos.(-v)), snd pos.(-v)
+		;
+		liste_suppr:=(-v,lvl)::(!liste_suppr);
+		clause:=List.filter (fun i -> i <> (-v)) (!clause)
+		end
 
 
 
-let rec separate clause liste_suppr stack_e nb=
-  let new_stack = create_stack() in
-match stack_e with
-|[] -> ();
-|(v,lvl,list_true)::tail -> separate_aux clause liste_suppr v lvl list_true new_stack nb;
-			    separate clause liste_suppr tail nb;;
+let rec separate clause liste_suppr stack_e pos nb=
+	let new_stack = create_stack() in
+	match stack_e with
+	|[] -> ()
+	|(v,lvl,list_true)::tail ->
+		separate_aux clause liste_suppr v lvl list_true new_stack pos nb;
+		separate clause liste_suppr tail pos nb;;
 
 
-let maj_clause_learning stack clause levels nb=
-  let stack_e = List.rev !stack in
-  let clause_r = ref clause in
-  let liste_s = ref [] in
-  separate clause liste_s stack_e nb;
-  [true,!clause,!liste_s];;
+let maj_clause_learning stack clause pos levels nb=
+	let stack_e = List.rev !stack in
+	let clause_r = ref clause in
+	let liste_s = ref [] in
+	separate clause_r liste_s stack_e pos nb;
+	false,!clause_r,!liste_s;;
 
 
 		(** ACTIVATION / DESACTIVATION DE CLAUSES **)
@@ -151,12 +154,12 @@ let rec backtrack_activate n changes current pos =
 		backtrack_activate n t current pos
 
 
-let rec aux_restore c2 level =
+(*let rec aux_restore c2 level =
 	match c2 with
 	| [] -> []
 	| (_,l)::_ when l < level -> c2
 	| (n,l)::q ->
-		aux_restore q level
+		aux_restore q level*)
 
 (* Restaure les littéraux qui avaient été supprimés par l'affectation annulée. *)
 let rec backtrack_restore n to_restore current level =
@@ -164,8 +167,8 @@ let rec backtrack_restore n to_restore current level =
 	| [] -> ()
 	| h::tail ->
 		let boole, c, c2 = current.a.(h) in
-		let new_c2 = aux_restore c2 level in
-		current.a.(h) <- boole, n::c, new_c2 ;
+		(*let new_c2 = aux_restore c2 level in*)
+		current.a.(h) <- boole, n::c, tl c2 ;(*new_c2 ;*)
 		backtrack_restore n tail current level
 
 
