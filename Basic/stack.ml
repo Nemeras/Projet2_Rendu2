@@ -102,16 +102,20 @@ let inactivate_clause c pos i =
 
 
 (* Supprime les littéraux mis à faux par l'affectation encours dans les clauses correspondantes. *)
-let rec update_remove n stack current solution list_pos level =
+let rec update_remove n stack current solution levels list_pos level =
 	match list_pos with
 	| [] -> ()
 	| h::t ->
 		let boole, c, c2 = current.a.(h) in
 		let new_c = List.filter (fun i -> i <> n) c in
-		current.a.(h) <- boole, new_c, (n,level)::c2 ;
+		if levels.(abs n) = level then
+			current.a.(h) <- boole, new_c, (n,level)::c2
+		else
+			current.a.(h) <- boole, new_c, c2@[(n,level)]
+		;
 		if new_c = [] then
 			solution.(0) <- -h-1 ;
-		update_remove n stack current solution t level
+		update_remove n stack current solution levels t level
 
 
 (* Désactive les clauses mises à vrai par l'affectation en cours. *)
@@ -132,9 +136,9 @@ let rec update_inactivate n stack current pos list_pos =
 (* Place l'affectation n = vrai au début de la pile, et met à jour current et pos.
 	list_pos_negative : liste des positions dans current des clauses contenant le littéral -n.
 	list_pos : liste des positions dans current des clauses contenant le littéral n.           *)
-let update n stack current pos solution list_pos_negative list_pos level =
+let update n stack current pos solution levels list_pos_negative list_pos level =
 	let changes = update_inactivate n stack current pos list_pos in
-	update_remove (-n) stack current solution list_pos_negative level ;
+	update_remove (-n) stack current solution levels list_pos_negative level ;
 	stack := (n,level,changes)::!stack
 
 

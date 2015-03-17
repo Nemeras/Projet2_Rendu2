@@ -97,13 +97,13 @@ let rec propa stack current pos solution levels orders level print =
 				(* x est nécessairement à vrai *)
 				begin
 				solution.(!x) <- !y + 2 ;
-				update !x stack current pos solution (snd pos.(!x)) (fst pos.(!x)) level
+				update !x stack current pos solution levels (snd pos.(!x)) (fst pos.(!x)) level
 				end
 			else
 				(* x est nécessairement à faux *)
 				begin
 				solution.(- !x) <- - !y - 2 ;
-				update !x stack current pos solution (fst pos.(- !x)) (snd pos.(- !x)) level
+				update !x stack current pos solution levels (fst pos.(- !x)) (snd pos.(- !x)) level
 				end
 			;
 			orders.(abs !x) <- !compt ;
@@ -137,7 +137,7 @@ let backtrack_step stack current pos solution levels orders k back nb_back level
 			begin
 			k := - !k ;
 			incr level ;
-			update !k stack current pos solution (fst pos.(- !k)) (snd pos.(- !k)) !level ;	(* On suppose l'opposé *)
+			update !k stack current pos solution levels (fst pos.(- !k)) (snd pos.(- !k)) !level ;	(* On suppose l'opposé *)
 			print_hyp !k print ;
 			solution.(- !k) <- -1 ;
 			orders.(- !k) <- 0
@@ -163,7 +163,7 @@ let backtrack_step stack current pos solution levels orders k back nb_back level
 
 let rec hlev clause solution levels ignore =
 	match clause with
-	| []-> -1
+	| []-> levels.(abs ignore) <- -1 ; -1
 	| h::t when (*abs (solution.(abs h)) = 1 &&*) (abs h) <> (ignore) -> max (levels.(abs h)) (hlev t solution levels ignore)
 	| h::t -> hlev t solution levels ignore
 
@@ -234,7 +234,7 @@ let continue bonus stack clauses current pos solution levels orders k back nb_ba
 			incr level ;
 			levels.(!k) <- !level ;
 			print_hyp !k print ;
-			update !k stack current pos solution (snd pos.(!k)) (fst pos.(!k)) !level ;
+			update !k stack current pos solution levels (snd pos.(!k)) (fst pos.(!k)) !level ;
 			solution.(!k) <- 1 ;
 			orders.(!k) <- 0
 			end

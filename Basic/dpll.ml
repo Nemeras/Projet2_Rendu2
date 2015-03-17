@@ -84,7 +84,7 @@ let init cnf stack current pos solution levels orders print =
 		if !k <= cnf.v_real then
 			begin
 			solution.(!k) <- 1 ;
-			update !k stack current pos solution (snd pos.(!k)) (fst pos.(!k)) 0
+			update !k stack current pos solution levels (snd pos.(!k)) (fst pos.(!k)) 0
 			end
 		end
 	(* Sinon, on donne la valeur d'arrêt pour k *)
