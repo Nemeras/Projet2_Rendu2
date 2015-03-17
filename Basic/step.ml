@@ -92,7 +92,8 @@ let rec propa stack current pos solution levels orders level print =
 		else
 			begin
 			print_conseq !x print ;
-			levels.(abs !x) <- level ;
+			if levels.(abs !x) != -1 then
+				levels.(abs !x) <- level ;
 			if !x > 0 then
 				(* x est nécessairement à vrai *)
 				begin
@@ -130,13 +131,15 @@ let backtrack_step stack current pos solution levels orders k back nb_back level
 		solution.(0) <- 0 ;
 		back := false ;
 		k := backtrack stack current pos (snd pos.(!k)) !level ;	(* On retire !k *)
-		print_backtrack !k solution.(abs !k) print ;
+		solution.(!k) <- 0 ;
 		decr level ;
+		print_backtrack !k solution.(abs !k) print ;
 		propa stack current pos solution levels orders !level print ;
-		if solution.(!k) = 0 then
+		if solution.(!k) = 0 && solution.(0) = 0 then
 			begin
 			k := - !k ;
 			incr level ;
+			levels.(- !k) <- !level ;
 			update !k stack current pos solution levels (fst pos.(- !k)) (snd pos.(- !k)) !level ;	(* On suppose l'opposé *)
 			print_hyp !k print ;
 			solution.(- !k) <- -1 ;
@@ -161,11 +164,11 @@ let backtrack_step stack current pos solution levels orders k back nb_back level
 
 
 
-let rec hlev clause solution levels ignore =
+let rec hlev clause solution levels ign =
 	match clause with
-	| []-> levels.(abs ignore) <- -1 ; -1
-	| h::t when (*abs (solution.(abs h)) = 1 &&*) (abs h) <> (ignore) -> max (levels.(abs h)) (hlev t solution levels ignore)
-	| h::t -> hlev t solution levels ignore
+	| []-> -1
+	| h::t when (*abs (solution.(abs h)) = 1 &&*) (abs h) <> (abs ign) -> max (levels.(abs h)) (hlev t solution levels ign)
+	| h::t -> hlev t solution levels ign
 
 
 (* Implémente une itération de la boucle *)
@@ -188,7 +191,7 @@ let continue bonus stack clauses current pos solution levels orders k back nb_ba
 		;
 		
 		let g = graph current solution !level !activate in
-		let new_clause = iter_learning bonus g clauses current solution levels orders (-solution.(0)-1) !level !activate tableau_bonus in
+		let new_clause, blue = iter_learning bonus g clauses current solution levels orders (-solution.(0)-1) !level !activate tableau_bonus in
 		if !activate then
 			Dot.compile g (Array.length solution - 1)
 		;
@@ -201,12 +204,16 @@ let continue bonus stack clauses current pos solution levels orders k back nb_ba
 		DynArray.add current clause_mod (false,[],[]) ;
 		print_string (Cnf.string_of_clause new_clause) ;
 		(*Printf.printf "%d %d %d\n" solution.(2) solution.(10) solution.(15) ;*)
-		let x = hlev new_clause solution levels (abs !k) in
+		let x = hlev new_clause solution levels blue in
 		(*print_int x ; print_newline() ;*)
+		(*print_int blue ; print_newline() ;*)
 		if x = -1 then
+			begin
+			levels.(abs blue) <- -1 ;
 			nb_back:= 1
+			end
 		else
-			nb_back:= !level + 1 - x
+			nb_back:= !level + 1  - x ;
 		(*print_int !nb_back;
 		print_newline();*)
 		end
@@ -217,7 +224,7 @@ let continue bonus stack clauses current pos solution levels orders k back nb_ba
 		(*print_int !nb_back ; print_newline() ;*)
 		(*if !nb_back > 0 then
 			while !nb_back > 0 do*)
-				if abs solution.(abs !k) = 1 then
+				if abs solution.(abs !k) = 1 && !nb_back > 0 then
 					decr nb_back ;
 				backtrack_step stack current pos solution levels orders k back !nb_back level !nb_back print
 			(*done

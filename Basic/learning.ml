@@ -47,7 +47,7 @@ let iter_learning bonus graph clauses current solution levels orders start level
 	if activate then
 		set_color (- !lit) Yellow (Array.length solution - 1) graph ;
 	(*print_string (Cnf.string_of_clause !c) ;*)
-	!c
+	!c, !lit
 
 
 let rec add pos_c graph current solution start level v =

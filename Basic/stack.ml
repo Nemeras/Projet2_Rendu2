@@ -108,10 +108,10 @@ let rec update_remove n stack current solution levels list_pos level =
 	| h::t ->
 		let boole, c, c2 = current.a.(h) in
 		let new_c = List.filter (fun i -> i <> n) c in
-		if levels.(abs n) = level then
+		if levels.(abs n) == level then
 			current.a.(h) <- boole, new_c, (n,level)::c2
 		else
-			current.a.(h) <- boole, new_c, c2@[(n,level)]
+			current.a.(h) <- boole, new_c, c2@[(n,-1)]
 		;
 		if new_c = [] then
 			solution.(0) <- -h-1 ;
