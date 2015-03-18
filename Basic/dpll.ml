@@ -129,6 +129,20 @@ let solve cnf print draw bonus =
 	while abs !k <= cnf.v_real && !k <> 0 do
 		incr compt ;
 		
+		if solution.(0) > 0 then
+			begin
+			for i = 0 to cnf.v_real do
+				solution.(i) <- 0 ;
+				levels.(i) <- 0 ;
+				level := 0 ;
+			done ;
+			solution.(0) <- 0 ;
+			back := false ;
+			level := -1 ;
+			k := 0
+			end
+		;
+		
 		(* Affichage, si autorisé *)
 		if print then
 			print_step current solution !back !compt ;
@@ -147,7 +161,8 @@ let solve cnf print draw bonus =
 				k := cnf.v_real + 1
 		(* Sinon : on continue *)
 		else
-			continue bonus stack clauses current pos solution levels orders k back nb_back level print draw tableau_bonus
+			continue bonus stack clauses current pos solution levels orders k back nb_back level print draw tableau_bonus ;
+		
 	done ;
 	
 	
