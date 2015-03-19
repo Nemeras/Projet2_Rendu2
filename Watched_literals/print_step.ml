@@ -78,9 +78,9 @@ let print_backtrack k value print =
 	if print then
 		begin
 		printf "\t****  Backtrack : %d  ****\n" k ;
-		if abs value > 2 then
+		if abs value >= 2 then
 			print_string "\t[Ancienne déduction]\n" ;
-		if abs value > 2 || k < 0 then
+		if abs value >= 2 || k < 0 then
 			print_string "\t Le backtrack continue...\n"
 		end
 

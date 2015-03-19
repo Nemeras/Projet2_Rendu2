@@ -37,24 +37,34 @@ let pick stack =
 let update n stack current solution =
 	let consequences = ref [] in
 	stack := n::!stack ;
-	
-	for i = 0 to Array.length current - 1 do
+	let absurd = ref false in
+	let i = ref 0 in
+	while (!i < Array.length current && not !absurd)  do
 		(* Si un des deux littéraux de la clause n'est pas encore à vrai *)
-		if not (is_w_true current.(i) solution) then
+		if not (is_w_true current.(!i) solution) then
 			begin
 			
 			(* On modifie les littéraux surveillés suite à l'affectation en cours *)
-			current.(i) <- change_clause current.(i) solution ;
+			current.(!i) <- change_clause current.(!i) solution ;
 			
 			(* Détection d'une conséquence *)
-			if is_unit current.(i) solution then
-				consequences := (hd current.(i))::!consequences ;
+			if is_unit current.(!i) solution then
+				consequences := (hd current.(!i), !i)::!consequences ;
 			
 			(* Si la clause est à faux, il y a contradiction *)
-			is_clause_false current.(i) solution ;
+			is_clause_false current.(!i) solution ;
+			if solution.(0) < 0 then
+				begin
+				solution.(0) <- -1 - !i ;
+				absurd := true
+				end
 			end
+		;
 		
 		(* Sinon, on ignore cette clause *)
+		
+		incr i
+		
 	done ;
 	
 	!consequences
