@@ -66,7 +66,7 @@ let cnf_to_vect cnf solution =
 	clauses, current, pos
 
 
-(* Détermine la première hypothèse à faire, après avoir éliminé les clauses unitaires
+(*(* Détermine la première hypothèse à faire, après avoir éliminé les clauses unitaires
    et les variables présentes sous une seule polarité.                                *)
 let init cnf stack current pos solution levels orders print =
 	
@@ -91,7 +91,7 @@ let init cnf stack current pos solution levels orders print =
 	else
 		k := 0
 	;
-	k
+	k*)
 
 
 
@@ -118,14 +118,14 @@ let solve cnf print draw bonus =
 	let stack = create_stack () in		(* stack contient initialement 0 en fond de pile *)
 	
 	(* Détection des clauses unitaires et des variables sous une seule polarité *)
-	let k = init cnf stack current pos solution levels orders print in
+	let k = ref 1 in(*init cnf stack current pos solution levels orders print in*)
 	let tableau_bonus = DynArray.make (List.length cnf.clauses) [] in
 	
 	(* Boucle principale *)
 	let back = ref false in
 	let nb_back = ref 0 in
 	let compt = ref 0 in
-	let level = ref 0 in
+	let level = ref (-1) in
 	while abs !k <= cnf.v_real && !k <> 0 do
 		incr compt ;
 		
@@ -134,7 +134,7 @@ let solve cnf print draw bonus =
 			for i = 0 to cnf.v_real do
 				solution.(i) <- 0 ;
 				levels.(i) <- 0 ;
-				level := 0 ;
+				level := -1 ;
 			done ;
 			solution.(0) <- 0 ;
 			back := false ;

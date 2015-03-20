@@ -47,7 +47,8 @@ let is_w_true c solution =
 	| h::h2::_ when is_true h solution -> true
 	| h::h2::_ when is_true h2 solution -> true
 	| h::h2::_ -> false
-	| _ -> failwith "[is_w_true] Moins de deux littéraux dans une clause"
+	| [h] -> is_true h solution
+	| [] -> false
 
 
 (* Indique si la clause est fausse, i.e. si ses deux littéraux surveillés sont à faux avec l'invariant *)
@@ -55,7 +56,9 @@ let is_clause_false c solution =
 	match c with
 	| h::h2::_ when (is_false h2 solution) && (is_false h solution) -> solution.(0) <- -2
 	| h::h2::_ -> ()
-	| _ -> failwith "[is_clause_false] Moins de deux littéraux dans une clause"
+	| [h] when (is_false h solution) ->
+		solution.(0) <- -2
+	| _ -> ()
 
 
 (* Change le(s) littéral(aux) surveillé(s) qui a été mis à faux *)
@@ -65,12 +68,13 @@ let change_clause c solution =
 	| h::h2::_ when is_false h solution -> to_end c solution
 	| h::h2::_ when is_false h2 solution -> h::(to_end (tl c) solution)
 	| h::h2::_ -> c
-	| _-> failwith "[change_clause] Moins de deux littéraux dans une clause"
+	| _ -> c
 
 
 (* Indique si la clause est unitaire, i.e. s'il ne reste plus qu'un littéral (le premier) à vrai, grâce à l'invariant *)
 let is_unit c solution =
 	match c with
-	| h::h2::_ when (not (is_false h solution)) && (is_false h2 solution) -> true
+	| h::h2::_ when (not (is_false h solution)) && (not (is_true h solution)) && (is_false h2 solution) -> true
 	| h::h2::_ -> false
-	| _ -> failwith "[is_random_then_false] Moins de deux littéraux dans une clause"
+	| [h] when (not (is_false h solution)) && (not (is_true h solution)) -> true
+	| _ -> false

@@ -33,7 +33,7 @@ let hlevel stack =
 
 
 (* A élaguer :p *)
-let rec separate_aux clause liste_suppr v lvl list_true new_stack pos nb=
+let rec separate_aux clause liste_suppr v lvl list_true pos nb=
 	if List.exists (fun i -> i=(-v)) (!clause) then 
 		begin
 		if v > 0 then
@@ -48,12 +48,11 @@ let rec separate_aux clause liste_suppr v lvl list_true new_stack pos nb=
 
 
 let rec separate clause liste_suppr stack_e pos nb=
-	let new_stack = create_stack() in
 	match stack_e with
 	|[] -> ()
 	|(v,lvl,list_true)::tail ->
-		separate_aux clause liste_suppr v lvl list_true new_stack pos nb;
-		separate clause liste_suppr tail pos nb;;
+		separate_aux clause liste_suppr v lvl list_true pos nb;
+		separate clause liste_suppr tail pos nb
 
 
 let maj_clause_learning stack clause pos levels nb=
@@ -61,7 +60,7 @@ let maj_clause_learning stack clause pos levels nb=
 	let clause_r = ref clause in
 	let liste_s = ref [] in
 	separate clause_r liste_s stack_e pos nb;
-	false,!clause_r,!liste_s;;
+	false,!clause_r,!liste_s
 
 
 		(** ACTIVATION / DESACTIVATION DE CLAUSES **)

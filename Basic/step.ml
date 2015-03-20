@@ -219,10 +219,9 @@ let continue bonus stack clauses current pos solution levels orders k back nb_ba
 			k := pick stack ;		(* On a besoin de connaître la valeur à dépiler *)
 		print_new_backtrack print ;
 		back := true ;
-		let clause_mod = Stack.maj_clause_learning stack new_clause pos levels (clauses.length) in 
+		let clause_mod = Stack.maj_clause_learning stack new_clause pos levels (clauses.length) in
 		DynArray.add clauses new_clause [] ;
 		DynArray.add current clause_mod (false,[],[]) ;
-		print_string (Cnf.string_of_clause new_clause) ;
 		
 		let x = hlev new_clause solution levels blue in
 		if x = -1 then
@@ -234,22 +233,15 @@ let continue bonus stack clauses current pos solution levels orders k back nb_ba
 	(* Backtracking : on n'a pas encore pu faire de nouvelle hypothèse pour enlever la contradiction *)
 	else if !back then
 		begin
-		(*print_int !nb_back ; print_newline() ;*)
-		(*if !nb_back > 0 then
-			while !nb_back > 0 do*)
-				if abs solution.(abs !k) = 1 && !nb_back > 0 then
-					decr nb_back ;
-				backtrack_step stack current pos solution levels orders k back level !nb_back print
-			(*done
-		else
-			backtrack_step stack current pos solution levels orders k back level 0 print*)
+		if abs solution.(abs !k) = 1 && !nb_back > 0 then
+			decr nb_back ;
+		backtrack_step stack current pos solution levels orders k back level !nb_back print
 		end
 	
 	(* S'il n'y a pas de contradiction : on suppose par défaut la première variable libre comme vraie *)
 	else
 		begin
-		k := abs !k + 1 ;
-		if solution.(!k) = 0 then
+		if solution.(!k) = 0 && !k > 0 then
 			begin
 			incr level ;
 			levels.(!k) <- !level ;
@@ -257,5 +249,6 @@ let continue bonus stack clauses current pos solution levels orders k back nb_ba
 			update !k stack current pos solution levels (snd pos.(!k)) (fst pos.(!k)) !level ;
 			solution.(!k) <- 1 ;
 			orders.(!k) <- 0
-			end
+			end ;
+		k := abs !k + 1 ;
 		end

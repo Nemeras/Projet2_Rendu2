@@ -1,6 +1,7 @@
 open Cnf
 open Array
 open Dot
+open DynArray
 
 let nbr_blue c level current solution levels orders =
 	let rec aux c lit found =
@@ -19,26 +20,23 @@ let nbr_blue c level current solution levels orders =
 	aux c 0 0
 
 let iter_learning graph clauses current solution levels orders start level activate =
-	print_int start ; print_newline() ;
 	let pos_c = ref start in
-	let c = ref clauses.(!pos_c) in
-	let a, b = nbr_blue clauses.(!pos_c) level current solution levels orders in
+	let c = ref clauses.a.(!pos_c) in
+	let a, b = nbr_blue clauses.a.(!pos_c) level current solution levels orders in
 	let fini = ref a in
 	let lit = ref b in
 	while (not !fini) do
 		if activate then
 			set_color (- !lit) Purple (Array.length solution - 1) graph ;
 		pos_c := (abs solution.(abs !lit)) - 2 ;
-		c := fusion (List.filter (fun i -> i <> !lit) !c) (List.filter (fun i -> i <> - !lit) clauses.(!pos_c)) ;
+		c := fusion (List.filter (fun i -> i <> !lit) !c) (List.filter (fun i -> i <> - !lit) clauses.a.(!pos_c)) ;
 		let a, b = nbr_blue !c level current solution levels orders in
 		fini := a ;
-		lit := b ;
-	(*print_string (Cnf.string_of_clause !c) ;
-	print_int !lit ; print_newline() ;*)
+		lit := b
 	done ;
 	if activate then
 		set_color (- !lit) Yellow (Array.length solution - 1) graph ;
-	!c
+	!c, !lit
 
 
 let rec add pos_c graph current solution levels orders start level v =
@@ -59,12 +57,13 @@ let rec add pos_c graph current solution levels orders start level v =
 			if abs solution.(abs n) > 1 then
 				add ((abs solution.(abs n)) - 2) graph current solution levels orders (-n) level v ;
 			princ q start
-		| n::q when solution.(abs n) >= 0 || levels.(abs n) = level ->
+		| n::q when n*solution.(abs n) >= 0 || levels.(abs n) = level ->
 			princ q start
 		| _ ->
-			aux l start
+			if start = 0 || abs solution.(abs start) > 1 then
+				aux l start
 	in
-	princ current.(pos_c) start
+	princ current.a.(pos_c) start
 
 
 let graph current solution levels orders level activate =

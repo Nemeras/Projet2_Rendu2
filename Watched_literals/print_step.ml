@@ -8,7 +8,7 @@ open Printf
 
 open Cnf
 open Watched
-
+open DynArray
 
 
 		(** RECAPITULATIF A CHAQUE ITERATION DE LA BOUCLE **)
@@ -21,11 +21,13 @@ let rec print_w_clause c solution =
 			aux c2 solution
 		| [] -> print_string "\t0\n"
 	in
-	let h, h2, c2 = hd c, hd (tl c), tl (tl c) in
-	printf "\t[| %d (%d)\t|\t%d (%d) |]\t"
-			h (max (-2) (min 2 (h*solution.(abs h))))
-			h2 (max (-2) (min 2 (h2*solution.(abs h2)))) ;
-	aux c2 solution
+	match c with
+	| h::h2::c2 ->
+		printf "\t[| %d (%d)\t|\t%d (%d) |]\t"
+				h (max (-2) (min 2 (h*solution.(abs h))))
+				h2 (max (-2) (min 2 (h2*solution.(abs h2)))) ;
+		aux c2 solution
+	| _ -> aux c solution
 
 let print_clauses current solution back =
 	print_string "Contradiction : " ;
@@ -40,11 +42,11 @@ let print_clauses current solution back =
 	else
 		print_string "Oui.\n\n"
 	;
-	for i = 0 to length current - 1 do
+	for i = 0 to current.length - 1 do
 		printf "Clause %d : " i ;
-		if is_w_true current.(i) solution then
+		if is_w_true current.a.(i) solution then
 			print_string "[INACTIVE]\t" ;
-		print_w_clause current.(i) solution
+		print_w_clause current.a.(i) solution
 	done
 
 let print_step current solution back compt =

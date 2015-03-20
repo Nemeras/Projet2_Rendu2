@@ -6,6 +6,7 @@
 open List
 
 open Watched
+open DynArray
 
 
 		(** STRUCTURE DE PILE **)
@@ -30,6 +31,26 @@ let pick stack =
 
 
 
+
+(** A REFAIRE **)
+let rec separate clause stack_e solution nb=
+	match stack_e with
+	| [] -> ()
+	| v::tail ->
+		solution.(abs v) <- v ;
+		clause := change_clause !clause solution ;
+		separate clause tail solution nb
+
+
+let maj_clause_learning stack clause levels nb=
+	let stack_e = List.rev !stack in
+	let clause_r = ref clause in
+	let solution = Array.make (Array.length levels) 0 in
+	separate clause_r stack_e solution nb;
+	!clause_r
+
+
+
 		(** UPDATE / PUSH **)
 
 
@@ -39,20 +60,20 @@ let update n stack current solution =
 	stack := n::!stack ;
 	let absurd = ref false in
 	let i = ref 0 in
-	while (!i < Array.length current && not !absurd)  do
+	while (!i < current.length && not !absurd)  do
 		(* Si un des deux littéraux de la clause n'est pas encore à vrai *)
-		if not (is_w_true current.(!i) solution) then
+		if not (is_w_true current.a.(!i) solution) then
 			begin
 			
 			(* On modifie les littéraux surveillés suite à l'affectation en cours *)
-			current.(!i) <- change_clause current.(!i) solution ;
+			current.a.(!i) <- change_clause current.a.(!i) solution ;
 			
 			(* Détection d'une conséquence *)
-			if is_unit current.(!i) solution then
-				consequences := (hd current.(!i), !i)::!consequences ;
+			if is_unit current.a.(!i) solution then
+				consequences := (hd current.a.(!i), !i)::!consequences ;
 			
 			(* Si la clause est à faux, il y a contradiction *)
-			is_clause_false current.(!i) solution ;
+			is_clause_false current.a.(!i) solution ;
 			if solution.(0) < 0 then
 				begin
 				solution.(0) <- -1 - !i ;
