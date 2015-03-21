@@ -10,7 +10,8 @@ open Print_step
 open Learning
 
 open DynArray
-open Arbre
+
+
 		(** BOOLEAN CONSTRAINT PROPAGATION **)
 
 

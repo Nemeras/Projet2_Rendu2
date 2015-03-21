@@ -19,9 +19,14 @@ let nbr_blue c level current solution levels orders =
 	in
 	aux c 0 0
 
-let iter_learning graph clauses current solution levels orders start level activate =
+let iter_learning bonus graph clauses current solution levels orders start level activate tableau_bonus =
 	let pos_c = ref start in
 	let c = ref clauses.a.(!pos_c) in
+	if bonus then 
+		begin
+			DynArray.add tableau_bonus [] [];
+			tableau_bonus.a.(tableau_bonus.length-1) <- (!pos_c)::(tableau_bonus.a.(tableau_bonus.length-1));
+		end;
 	let a, b = nbr_blue clauses.a.(!pos_c) level current solution levels orders in
 	let fini = ref a in
 	let lit = ref b in
@@ -30,6 +35,8 @@ let iter_learning graph clauses current solution levels orders start level activ
 			set_color (- !lit) Purple (Array.length solution - 1) graph ;
 		pos_c := (abs solution.(abs !lit)) - 2 ;
 		c := fusion (List.filter (fun i -> i <> !lit) !c) (List.filter (fun i -> i <> - !lit) clauses.a.(!pos_c)) ;
+		if bonus then
+			tableau_bonus.a.(tableau_bonus.length-1) <- (!pos_c)::(tableau_bonus.a.(tableau_bonus.length-1));
 		let a, b = nbr_blue !c level current solution levels orders in
 		fini := a ;
 		lit := b

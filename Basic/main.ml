@@ -45,5 +45,5 @@ let _ =
   if cnf.c_real <> cnf.c then
     Printf.printf "Attention : Le fichier comporte %d clauses, alors que %d clauses étaient annoncées\n" cnf.c_real cnf.c ;
   let res = Dpll.solve cnf !print draw !bonus in
-  print_solution res;;
+  print_solution res
 		 

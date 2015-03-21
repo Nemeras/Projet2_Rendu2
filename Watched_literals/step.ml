@@ -104,7 +104,7 @@ let rec hlev clause solution levels ign =
 
 
 (* Implémente une itération de la boucle *)
-let continue stack clauses current solution levels orders uni k back nb_back level print draw =
+let continue bonus stack clauses current solution levels orders uni k back nb_back level print draw tableau_bonus =
 	
 	(* On vient de découvrir la clause vide : on commence le backtrack *)
 	if solution.(0) < 0 && not !back then
@@ -124,7 +124,7 @@ let continue stack clauses current solution levels orders uni k back nb_back lev
 		;
 		
 		let g = graph current solution levels orders !level !activate in
-		let new_clause, blue = iter_learning g clauses current solution levels orders (-solution.(0)-1) !level !activate in
+		let new_clause, blue = iter_learning bonus g clauses current solution levels orders (-solution.(0)-1) !level !activate tableau_bonus in
 		print_string (Cnf.string_of_clause new_clause) ;
 		if !activate then
 			Dot.compile g (Array.length solution - 1)

@@ -21,7 +21,7 @@ let nbr_blue c level current solution levels orders =
 	in
 	aux c 0
 
-let iter_learning bonus graph clauses current solution levels orders start level activate tableau_bonus=
+let iter_learning bonus graph clauses current solution levels orders start level activate tableau_bonus =
 	let pos_c = ref start in
 	let c = ref clauses.a.(!pos_c) in
 	if bonus then 

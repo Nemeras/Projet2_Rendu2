@@ -115,11 +115,12 @@ let solve cnf print draw bonus =
 	let levels = Array.make (cnf.v_real+1) 0 in
 	let orders = Array.make (cnf.v_real+1) 0 in
 	let clauses, current, pos = cnf_to_vect cnf solution in
+	let tableau_bonus = DynArray.make clauses.length [] in
+	let l = current.length in
 	let stack = create_stack () in		(* stack contient initialement 0 en fond de pile *)
 	
 	(* Détection des clauses unitaires et des variables sous une seule polarité *)
 	let k = ref 1 in(*init cnf stack current pos solution levels orders print in*)
-	let tableau_bonus = DynArray.make (List.length cnf.clauses) [] in
 	
 	(* Boucle principale *)
 	let back = ref false in
@@ -167,9 +168,10 @@ let solve cnf print draw bonus =
 	
 	
 	if !k = 0 then
-	  begin
-	    Newprob.create_new_cnf tableau_bonus clauses;
-	    False
-	  end
+		begin
+		if bonus then
+			Newprob.create_new_cnf tableau_bonus clauses solution l ;
+		False
+		end
 	else
 		True solution

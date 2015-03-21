@@ -28,9 +28,11 @@ let _ =
 	let file = ref "" in	(* Nom du fichier d'entrée *)
 	let print = ref false in	(* True ssi on active l'affichage *)
 	let draw = ref true in
+	let bonus = ref false in
 	let options = [
 		("-print", Arg.Set print, "Active l'affichage des étapes intermédiaires de l'algorithme.") ;
-		("-cl", Arg.Clear draw, "Désactive le mode interactif")
+		("-cl", Arg.Clear draw, "Désactive le mode interactif") ;
+    ("-explainunsat",Arg.Set bonus, "Active le mode d'explication de l'insatisfiabilite.")
 	] in
 	Arg.parse options (fun s -> file := s)  "Ce programme résout l'instance de SAT donnée dans le fichier en entrée." ;
 	
@@ -43,4 +45,5 @@ let _ =
 	if cnf.c_real <> cnf.c then
 		Printf.printf "Attention : Le fichier comporte %d clauses, alors que %d clauses étaient annoncées\n" cnf.c_real cnf.c ;
 	
-	print_solution (Dpll.solve cnf !print draw)
+	let res = Dpll.solve cnf !print draw !bonus in
+	print_solution res

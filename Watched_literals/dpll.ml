@@ -115,7 +115,7 @@ let init cnf stack current solution levels orders uni print =
 	False si cnf n'est pas satisfiable.
 	True solution si cnf est satisfiable, avec solution une instanciation qui la satisfait. *)
 
-let solve cnf print draw =
+let solve cnf print draw bonus =
 	
 	(* Tri des littéraux dans les clauses par indice de variable croissant,
 	   élimination des tautologies.                                         *)
@@ -127,6 +127,8 @@ let solve cnf print draw =
 	let levels = Array.make (cnf.v_real+1) 0 in
 	let orders = Array.make (cnf.v_real+1) 0 in
 	let clauses, current = cnf_to_vect cnf.clauses in
+	let tableau_bonus = DynArray.make clauses.length [] in
+	let l = current.length in
 	let stack = create_stack () in
 	
 	(* Déductions découlant de remove_units, détermination du premier pari *)
@@ -171,17 +173,21 @@ let solve cnf print draw =
 		if abs !k = cnf.v_real then
 			(* S'il y a contradiction : backtrack *)
 			if solution.(0) < 0 then
-				continue stack clauses current solution levels orders uni k back nb_back level print draw
+				continue bonus stack clauses current solution levels orders uni k back nb_back level print draw tableau_bonus
 			(* Sinon : c'est fini *)
 			else
 				k := cnf.v_real + 1
 		(* Sinon : on continue *)
 		else
-			continue stack clauses current solution levels orders uni k back nb_back level print draw
+			continue bonus stack clauses current solution levels orders uni k back nb_back level print draw tableau_bonus
 	done ;
 	
 	
 	if !k = 0 then
+		begin
+		if bonus then
+			Newprob.create_new_cnf tableau_bonus clauses solution l ;
 		False
+		end
 	else
 		True solution
