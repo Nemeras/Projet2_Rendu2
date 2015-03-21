@@ -32,7 +32,7 @@ match liste with
 (*|_-> failwith "probleme dans compile_liste";;*)
 
 let compile_color tc buffer nb_variables=
-fprintf buffer " 0 [label=\"conflict\",style=filled,color=crimson]; \n";
+fprintf buffer " 0 [label=\"Conflict\",style=filled,color=crimson]; \n";
 for i = 1 to ((Array.length tc)-1) do
   let nb = var_changer i nb_variables in
     match (tc.(i)) with

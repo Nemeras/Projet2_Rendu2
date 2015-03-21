@@ -50,33 +50,39 @@ let iter_learning bonus graph clauses current solution levels orders start level
 	!c, !lit
 
 
-let rec add pos_c graph current solution start level v =
+let rec add pos_c graph current solution seen start level v =
 	let rec aux l start =
 		match l with
 		| [] -> ()
 		| (n,_)::q ->
-			 add_arete graph (-n, start) ;
-			 set_color (-n) White v graph ;
-			 aux q start
+			if not seen.(abs start) then
+				begin
+				add_arete graph (-n, start) ;
+				set_color (-n) White v graph ;
+				aux q start
+				end
 	in
 	match current.a.(pos_c) with
-	| _,_,[] -> ()
 	| a,b,(n,l)::q when l = level ->
-		 add_arete graph (-n, start) ;
-		 set_color (-n) Blue v graph ;
-		 current.a.(pos_c) <- a,b,q ;
-		 if abs solution.(abs n) > 1 then
-			 add ((abs solution.(abs n)) - 2) graph current solution (-n) level v ;
-		 add pos_c graph current solution start level v
+		add_arete graph (-n, start) ;
+		set_color (-n) Blue v graph ;
+		current.a.(pos_c) <- a,b,q ;
+		if abs solution.(abs n) > 1 then
+			 add ((abs solution.(abs n)) - 2) graph current solution seen (-n) level v ;
+		add pos_c graph current solution seen start level v
 	| a,b,q ->
-		 aux q start
+		aux q start ;
+		seen.(abs start) <- true
 	 
 	 
 let graph current solution level activate =
 	let v = if activate then length solution - 1 else 0 in
 	let g = creer_graph v in
 	if activate then
-		add (-solution.(0)-1) g current solution 0 level v ;
+		begin
+		let seen = Array.make (length solution) false in
+		add (-solution.(0)-1) g current solution seen 0 level v ;
+		end ;
 	g
 
 

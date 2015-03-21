@@ -159,8 +159,8 @@ let solve cnf print draw bonus =
 		;
 		
 		(* Affichage, si autorisé *)
-		(*if print then
-			print_step current solution !back !compt ;*)
+		if print then
+			print_step current solution !back !compt ;
 		
 		if solution.(0) = 0 then
 			units current solution uni ;
