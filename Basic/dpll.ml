@@ -105,7 +105,7 @@ let init cnf stack current pos solution levels orders print =
 	False si cnf n'est pas satisfiable.
 	True solution si cnf est satisfiable, avec solution une instanciation qui la satisfait. *)
 
-let solve cnf print draw bonus =
+let solve cnf print learning draw bonus =
 	
 	(* Tri des littéraux dans les clauses par indice de variable croissant,
 	   élimination des tautologies.                                         *)
@@ -132,11 +132,10 @@ let solve cnf print draw bonus =
 		
 		if solution.(0) > 0 then
 			begin
-			for i = 0 to cnf.v_real do
+			(*for i = 0 to cnf.v_real do
 				solution.(i) <- 0 ;
-				levels.(i) <- 0 ;
-				level := -1 ;
-			done ;
+				levels.(i) <- 0
+			done ;*)
 			solution.(0) <- 0 ;
 			back := false ;
 			level := -1 ;
@@ -156,13 +155,13 @@ let solve cnf print draw bonus =
 		if abs !k = cnf.v_real then
 			(* S'il y a contradiction : backtrack *)
 			if solution.(0) < 0 then
-				continue bonus stack clauses current pos solution levels orders k back nb_back level print draw tableau_bonus
+				continue bonus stack clauses current pos solution levels orders k back nb_back level print learning draw tableau_bonus
 			(* Sinon : c'est fini *)
 			else
 				k := cnf.v_real + 1
 		(* Sinon : on continue *)
 		else
-			continue bonus stack clauses current pos solution levels orders k back nb_back level print draw tableau_bonus ;
+			continue bonus stack clauses current pos solution levels orders k back nb_back level print learning draw tableau_bonus ;
 		
 	done ;
 	

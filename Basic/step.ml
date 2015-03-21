@@ -141,7 +141,7 @@ let from_scratch stack current pos solution k level =
 		end
 
 (* Effectue une étape de backtrack *)
-let backtrack_step stack current pos solution levels orders k back level nb_back print =
+let backtrack_step stack current pos solution levels orders k back level nb_back print learning =
 	
 	(* Si la valeur de début de pile est positive et n'est pas issue d'une boolean constraint propagation,
 	   donc pas nécessaire, on peut supposer l'opposé. On arrête alors le backtrack.                       *)
@@ -153,8 +153,7 @@ let backtrack_step stack current pos solution levels orders k back level nb_back
 		solution.(!k) <- 0 ;
 		decr level ;
 		print_backtrack !k solution.(abs !k) print ;
-		(*propa stack current pos solution levels orders !level print ;*)
-		(*if solution.(!k) = 0 && solution.(0) = 0 then
+		if not learning then
 			begin
 			k := - !k ;
 			incr level ;
@@ -163,7 +162,7 @@ let backtrack_step stack current pos solution levels orders k back level nb_back
 			print_hyp !k print ;
 			solution.(- !k) <- -1 ;
 			orders.(- !k) <- 0
-			end*)
+			end
 		end
 	
 	(* Sinon, il faut continuer le backtrack *)
@@ -191,44 +190,50 @@ let rec hlev clause solution levels ign =
 
 
 (* Implémente une itération de la boucle *)
-let continue bonus stack clauses current pos solution levels orders k back nb_back level print draw tableau_bonus =
+let continue bonus stack clauses current pos solution levels orders k back nb_back level print learning draw tableau_bonus =
 	
 	(* On vient de découvrir la clause vide : on commence le backtrack *)
 	if solution.(0) < 0 && not !back then
 		begin
-		let activate = ref false in
-		if !draw then
-			begin
-				print_string "\nConflit détecté. Que voulez-vous faire ?\ng : générer le graphe des confits\nc : continuer jusqu'au prochain conflit\nt : désactiver le mode interactif\n\n" ;
-				flush stdout ;
-				let key = Scanf.scanf "%c\n" (fun x -> x) in
-				match key with
-				| 'g' -> activate := true
-				| 't' -> draw := false
-				| 'c' -> ()
-				| _ -> failwith "Saisie erronée\n"
-			end
-		;
-		
-		let g = graph current solution !level !activate in
-		let new_clause, blue = iter_learning bonus g clauses current solution levels orders (-solution.(0)-1) !level !activate tableau_bonus in
-		if !activate then
-			Dot.compile g (Array.length solution - 1)
-		;
 		
 		if !k != 0 then
 			k := pick stack ;		(* On a besoin de connaître la valeur à dépiler *)
 		print_new_backtrack print ;
 		back := true ;
-		let clause_mod = Stack.maj_clause_learning stack new_clause pos levels (clauses.length) in
-		DynArray.add clauses new_clause [] ;
-		DynArray.add current clause_mod (false,[],[]) ;
 		
-		let x = hlev new_clause solution levels blue in
-		if x = -1 then
-			from_scratch stack current pos solution k level
-		else
-			nb_back:= !level + 1 - x
+		if learning then
+			begin
+			let activate = ref false in
+			if !draw then
+				begin
+					print_string "\nConflit détecté. Que voulez-vous faire ?\ng : générer le graphe des confits\nc : continuer jusqu'au prochain conflit\nt : désactiver le mode interactif\n\n" ;
+					flush stdout ;
+					let key = Scanf.scanf "%c\n" (fun x -> x) in
+					match key with
+					| 'g' -> activate := true
+					| 't' -> draw := false
+					| 'c' -> ()
+					| _ -> failwith "Saisie erronée\n"
+				end
+			;
+		
+			let g = graph current solution !level !activate in
+			let new_clause, blue = iter_learning bonus g clauses current solution levels orders (-solution.(0)-1) !level !activate tableau_bonus in
+			if !activate then
+				Dot.compile g (Array.length solution - 1)
+			;
+		
+			let clause_mod = Stack.maj_clause_learning stack new_clause pos levels (clauses.length) in
+			DynArray.add clauses new_clause [] ;
+			DynArray.add current clause_mod (false,[],[]) ;
+		
+			let x = hlev new_clause solution levels blue in
+			if x = -1 then
+				from_scratch stack current pos solution k level
+			else
+				nb_back:= !level + 1 - x
+			end
+		
 		end
 	
 	(* Backtracking : on n'a pas encore pu faire de nouvelle hypothèse pour enlever la contradiction *)
@@ -236,14 +241,15 @@ let continue bonus stack clauses current pos solution levels orders k back nb_ba
 		begin
 		if abs solution.(abs !k) = 1 && !nb_back > 0 then
 			decr nb_back ;
-		backtrack_step stack current pos solution levels orders k back level !nb_back print
+		backtrack_step stack current pos solution levels orders k back level !nb_back print learning
 		end
 	
 	(* S'il n'y a pas de contradiction : on suppose par défaut la première variable libre comme vraie *)
 	else
 		begin
-		if solution.(!k) = 0 && !k > 0 then
+		if !k <> 0 && solution.(abs !k) = 0 then
 			begin
+			k := abs !k ;
 			incr level ;
 			levels.(!k) <- !level ;
 			print_hyp !k print ;

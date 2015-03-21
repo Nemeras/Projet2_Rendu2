@@ -36,6 +36,7 @@ let iter_learning bonus graph clauses current solution levels orders start level
 			set_color (- !lit) Purple (Array.length solution - 1) graph ;
 		pos_c := (abs solution.(abs !lit)) - 2 ;
 		c := fusion (List.filter (fun i -> i <> !lit) !c) (List.filter (fun i -> i <> - !lit) clauses.a.(!pos_c)) ;
+		Printf.printf "%d with %d" !lit !pos_c ;
 		if bonus then
 			tableau_bonus.a.(tableau_bonus.length-1) <- (!pos_c)::(tableau_bonus.a.(tableau_bonus.length-1));
 		let a, b = nbr_blue !c level current solution levels orders in

@@ -63,13 +63,12 @@ let is_clause_false c solution =
  
 (* Change le(s) littéral(aux) surveillé(s) qui a été mis à faux *)
 let change_clause c solution =
-	all_false_to_end c solution
-	(*match c with
+	match c with
 	| h::h2::_ when (is_false h solution) && (is_false h2 solution) -> to_end (h::(to_end (tl c) solution)) solution
 	| h::h2::_ when is_false h solution -> to_end c solution
 	| h::h2::_ when is_false h2 solution -> h::(to_end (tl c) solution)
 	| h::h2::_ -> c
-	| _ -> c*)
+	| _ -> c
 
 
 (* Indique si la clause est unitaire, i.e. s'il ne reste plus qu'un littéral (le premier) à vrai, grâce à l'invariant *)

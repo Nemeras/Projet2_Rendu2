@@ -34,7 +34,7 @@ let _ =
 		("-print", Arg.Set print, "Active l'affichage des étapes intermédiaires de l'algorithme.") ;
 		("-cl", Arg.Set learning, "Active l'apprentissage de clauses.") ;
 		("-cl-interac", Arg.Unit (fun () -> learning := true ; draw := true), "Active l'apprentissage et le mode interactif.") ;
-		("-explainunsat", Arg.Unit (fun () -> learning := true ; bonus := true), "Active le mode d'explication de l'insatisfiabilite.")
+		("-explainunsat", Arg.Set bonus, "Active le mode d'explication de l'insatisfiabilite.")
 	] in
 	Arg.parse options (fun s -> file := s)  "Ce programme résout l'instance de SAT donnée dans le fichier en entrée." ;
 	

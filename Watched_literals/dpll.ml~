@@ -146,10 +146,10 @@ let solve cnf print learning draw bonus =
 		
 		if solution.(0) > 0 then
 			begin
-			(*for i = 0 to cnf.v_real do
+			for i = 0 to cnf.v_real do
 				solution.(i) <- 0 ;
 				levels.(i) <- 0
-			done ;*)
+			done ;
 			solution.(0) <- 0 ;
 			back := false ;
 			level := -1 ;

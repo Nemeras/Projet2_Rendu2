@@ -136,7 +136,7 @@ let continue bonus stack clauses current solution levels orders uni k back nb_ba
 		
 			let g = graph current solution levels orders !level !activate in
 			let new_clause, blue = iter_learning bonus g clauses current solution levels orders (-solution.(0)-1) !level !activate tableau_bonus in
-			
+			print_string (Cnf.string_of_clause new_clause) ;
 			if !activate then
 				Dot.compile g (Array.length solution - 1)
 			;
